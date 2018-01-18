@@ -1,0 +1,179 @@
+---
+title: "HW1"
+author: "Michael Leibert"
+date: "January 18, 2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+\[  u = 
+ \begin{pmatrix}
+  u_{1}    \\
+  u_{2}   \\
+  \vdots    \\
+  u_{n}  \end{pmatrix},
+  \hspace{5mm}v = 
+ \begin{pmatrix}
+  v_{1}    \\
+  v_{2}   \\
+  \vdots    \\
+  v_{n}  \end{pmatrix} 
+  \hspace{10mm} \text{Definition: } 
+    {\bf a} \cdot {\bf b} = \sum_{i=1}^n a_{i}b_{i} = a_{1}b_{1} + a_{2}b_{2} + \dots a_{n}b_{n}\]
+
+\begin{align*}u^Tv &= \begin{pmatrix} 
+  u_{1} & u_{2} = \cdots & u_{n} \end{pmatrix}
+ \begin{pmatrix}
+  v_{1}    \\
+  v_{2}   \\
+  \vdots    \\
+  v_{n}  \end{pmatrix}  \\
+  &= u_{1}v_{1} + u_{2}v_{2} + \dots + u_{n}v_{n} \\
+  &= \sum_{i=1}^n u_{i}v_{i} \\
+  &= {\bf u} \cdot {\bf v}
+\end{align*}
+
+\ 
+
+#2 
+
+
+
+\[   u = 
+ \begin{pmatrix}
+  u_{1}    \\
+  u_{2}   \\
+  \vdots    \\
+  u_{n}  \end{pmatrix},
+  \hspace{5mm}v = 
+ \begin{pmatrix}
+  v_{1}    \\
+  v_{2}   \\
+  \vdots    \\
+  v_{n}  \end{pmatrix}, \hspace{5 mm}
+M = 
+ \begin{pmatrix}
+  m_{1,1} & m_{1,2} & \cdots & m_{1,n'} \\
+  m_{2,1} & m_{2,2} & \cdots & m_{2,n'} \\
+  \vdots  & \vdots  & \ddots & \vdots  \\
+  m_{n,1} & m_{n,2} & \cdots & m_{n,n'} 
+ \end{pmatrix} \]
+ 
+ \begin{align*}
+u \cdot Mv &= u \cdot  \begin{pmatrix}
+  m_{1,1} & m_{1,2} & \cdots & m_{1,n'} \\
+  m_{2,1} & m_{2,2} & \cdots & m_{2,n'} \\
+  \vdots  & \vdots  & \ddots & \vdots  \\
+  m_{n,1} & m_{n,2} & \cdots & m_{n,n'} 
+ \end{pmatrix} 
+ \begin{pmatrix}
+  v_{1}    \\
+  v_{2}   \\
+  \vdots    \\
+  v_{n}  \end{pmatrix} \\
+    &= u \cdot \begin{pmatrix}
+  \sum\limits_{j=1}^{n'} m_{1j}v_{j}   \\
+  \sum\limits_{j=1}^{n'} m_{2j}v_{j}   \\
+  \vdots    \\
+  \sum\limits_{j=1}^{n'} m_{nj}v_{j}  \end{pmatrix} \hspace{30 mm}
+  \text{Let } \mu = \begin{pmatrix}
+  \sum\limits_{j=1}^{n'} m_{1j}v_{j}   \\
+  \sum\limits_{j=1}^{n'} m_{2j}v_{j}   \\
+  \vdots    \\
+  \sum\limits_{j=1}^{n'} m_{nj}v_{j}  \end{pmatrix} \\
+    &= {\bf u} \cdot {\bf \mu} \\
+  &= \sum\limits_{i=1}^n u_i \mu_i \\
+  &= \sum\limits_{i=1}^n u_i \left( \sum\limits_{j=1}^{n'} m_{ij}v_{j} \right) \\
+  &= \sum\limits_{i=1}^n \sum\limits_{j=1}^{n'} m_{ij} u_i v_{j} 
+\end{align*}
+
+#3
+
+\begin{align*}
+ \Delta \left( b^T x \right) &= \Delta \left( \sum\limits_{i=1}^n b_i x_i\right) \\
+ &= \Delta \left( b_1 x_1  + b_2 x_2 + \dots + b_n x_n \right) \\
+ &= \begin{pmatrix} \cfrac{\partial}{\partial x_1 } \ b_1 x_1  + b_2 x_2 + \dots + b_n x_n \\
+                    \cfrac{\partial}{\partial x_2 } \ b_1 x_1  + b_2 x_2 + \dots + b_n x_n \\
+                    \vdots \\
+                    \cfrac{\partial}{\partial x_n } \ b_1 x_1  + b_2 x_2 + \dots + b_n x_n \\
+      \end{pmatrix} \\
+ &= \begin{pmatrix} b_1 \\ b_2 \\ \vdots \\ b_n \end{pmatrix} \\
+ &= {\bf b}          
+\end{align*}
+
+#4
+
+
+
+\[ x = 
+ \begin{pmatrix}
+  x_{1}    \\
+  x_{2}   \\
+  \vdots    \\
+  x_{n}  \end{pmatrix}, \hspace{5 mm}
+A = 
+ \begin{pmatrix}
+  a_{11} & a_{12} & \cdots & a_{1n} \\
+  a_{21} & a_{22} & \cdots & a_{2n} \\
+  \vdots  & \vdots  & \ddots & \vdots  \\
+  a_{n1} & a_{n2} & \cdots & a_{nn} 
+ \end{pmatrix}, \hspace{5 mm}
+A^T = 
+ \begin{pmatrix}
+  a_{11} & a_{21} & \cdots & a_{n1} \\
+  a_{12} & a_{22} & \cdots & a_{n2} \\
+  \vdots  & \vdots  & \ddots & \vdots  \\
+  a_{1n} & a_{2n} & \cdots & a_{nn} 
+ \end{pmatrix}\]
+
+\begin{align*}
+x^T A x &= \begin{pmatrix}  x_1 & x_2 & \cdots & x_n \end{pmatrix}
+     \begin{pmatrix}
+  a_{11} & a_{12} & \cdots & a_{1n} \\
+  a_{21} & a_{22} & \cdots & a_{2n} \\
+  \vdots  & \vdots  & \ddots & \vdots  \\
+  a_{n1} & a_{n2} & \cdots & a_{nn} 
+ \end{pmatrix}\begin{pmatrix}
+  x_{1}    \\
+  x_{2}   \\
+  \vdots    \\
+  x_{n}  \end{pmatrix} \\
+  &= \begin{pmatrix}  x_1 & x_2 & \cdots & x_n \end{pmatrix} 
+  \begin{pmatrix}  \sum\limits_{j=1}^n a_{1j} x_j  \\ 
+                    \sum\limits_{j=1}^n a_{2j} x_j  \\ 
+                    \vdots \\
+                     \sum\limits_{j=1}^n a_{1j} x_j \end{pmatrix} \\
+  &= x_1 \sum\limits_{j=1}^n a_{1j} x_j + 
+      x_2 \sum\limits_{j=1}^n a_{2j} x_j + ... + 
+      x_n \sum\limits_{j=1}^n a_{nj} x_j                  
+  \end{align*}
+  
+\begin{align*}
+ \cfrac{\partial}{\parial x_1} \left[ x_1 \sum\limits_{j=1}^n a_{1j} x_j + 
+      x_2 \sum\limits_{j=1}^n a_{2j} x_j + ... + 
+      x_n \sum\limits_{j=1}^n a_{nj} x_j \right] &= 2a_{11}x_1 +a_{12}x_2 + ... + a_{1n}x_n + 
+      a_{21}x_2 + ... + a_{n1}x_n
+\end{align*}
+
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
