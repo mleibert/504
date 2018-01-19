@@ -9,11 +9,7 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
-
-
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+#2(a)
 
 \[  u = 
  \begin{pmatrix}
@@ -44,7 +40,7 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 
 \ 
 
-#2 
+#2(b)
 
 
 
@@ -96,11 +92,11 @@ u \cdot Mv &= u \cdot  \begin{pmatrix}
   &= \sum\limits_{i=1}^n \sum\limits_{j=1}^{n'} m_{ij} u_i v_{j} 
 \end{align*}
 
-#3
+#2(c)
 
 \begin{align*}
- \Delta \left( b^T x \right) &= \Delta \left( \sum\limits_{i=1}^n b_i x_i\right) \\
- &= \Delta \left( b_1 x_1  + b_2 x_2 + \dots + b_n x_n \right) \\
+ \nabla \left( b^T x \right) &= \nabla \left( \sum\limits_{i=1}^n b_i x_i\right) \\
+ &= \nabla \left( b_1 x_1  + b_2 x_2 + \dots + b_n x_n \right) \\
  &= \begin{pmatrix} \cfrac{\partial}{\partial x_1 } \ b_1 x_1  + b_2 x_2 + \dots + b_n x_n \\
                     \cfrac{\partial}{\partial x_2 } \ b_1 x_1  + b_2 x_2 + \dots + b_n x_n \\
                     \vdots \\
@@ -110,7 +106,7 @@ u \cdot Mv &= u \cdot  \begin{pmatrix}
  &= {\bf b}          
 \end{align*}
 
-#4
+#2(d)
 
 
 
@@ -156,24 +152,134 @@ x^T A x &= \begin{pmatrix}  x_1 & x_2 & \cdots & x_n \end{pmatrix}
       x_2 \sum\limits_{j=1}^n a_{2j} x_j + ... + 
       x_n \sum\limits_{j=1}^n a_{nj} x_j                  
   \end{align*}
-  
+
+
 \begin{align*}
- \cfrac{\partial}{\parial x_1} \left[ x_1 \sum\limits_{j=1}^n a_{1j} x_j + 
+\nabla\left(x^T A x \right) &= \begin{pmatrix} \\
+  \cfrac{\partial}{\partial x_1} \left[ x_1 \sum\limits_{j=1}^n a_{1j} x_j + 
       x_2 \sum\limits_{j=1}^n a_{2j} x_j + ... + 
-      x_n \sum\limits_{j=1}^n a_{nj} x_j \right] &= 2a_{11}x_1 +a_{12}x_2 + ... + a_{1n}x_n + 
-      a_{21}x_2 + ... + a_{n1}x_n
+      x_n \sum\limits_{j=1}^n a_{nj} x_j \right] \vspace{3 mm} \\
+  \cfrac{\partial}{\partial x_2} \left[ x_1 \sum\limits_{j=1}^n a_{1j} x_j + 
+      x_2 \sum\limits_{j=1}^n a_{2j} x_j + ... + 
+      x_n \sum\limits_{j=1}^n a_{nj} x_j \right] \vspace{3 mm} \\
+    \vdots \vspace{3 mm} \\
+  \cfrac{\partial}{\partial x_n} \left[ x_1 \sum\limits_{j=1}^n a_{1j} x_j + 
+      x_2 \sum\limits_{j=1}^n a_{2j} x_j + ... + 
+      x_n \sum\limits_{j=1}^n a_{nj} x_j \right]  \vspace{4 mm} \end{pmatrix} \\
+  &= \begin{pmatrix} \\   
+    2a_{11}x_1 +a_{12}x_2 + ... + a_{1n}x_n + a_{21}x_2 + ... + a_{n1}x_n  \vspace{3 mm} \\
+    a_{12}x_1 + a_{21}x_1 + 2a_{22}x_2 + ... + a_{2n}x_n + ... + a_{n2}x_n  \vspace{3 mm}  \\
+    \vdots \\
+    a_{1n}x_1 + a_{2n}x_2 + ... + a_{n1}x_1 + a_{n2}x_2 + ... + 2a_{nn}x_n  \vspace{4 mm} \end{pmatrix} \\
+  &= \begin{pmatrix} \\   
+    a_{11}x_1 +a_{12}x_2 + ... + a_{1n}x_n + a_{11}x_1 + a_{21}x_2 + ... + a_{n1}x_n  \vspace{3 mm} \\
+    a_{21}x_1 + a_{22}x_2 +  ... + a_{2n}x_n  + a_{12}x_1 +  a_{22}x_2 + ...+ a_{n2}x_n  \vspace{3 mm}  \\
+    \vdots \vspace{3 mm} \\
+    a_{n1}x_1 + a_{n2}x_2 + ... + a_{nn}x_n + a_{1n}x_1 +  a_{2n}x_2 +... + a_{nn}x_n  \vspace{4 mm} \end{pmatrix} \\
+  &=   \begin{pmatrix} \\   
+    a_{11}x_1 +a_{12}x_2 + ... + a_{1n}x_n    \vspace{3 mm} \\
+    a_{21}x_1 + a_{22}x_2 +  ... + a_{2n}x_n     \vspace{3 mm}  \\
+    \vdots \\
+    a_{n1}x_1 + a_{n2}x_2 + ... + a_{nn}x_n   \vspace{4 mm} \end{pmatrix}+
+    \begin{pmatrix} \\   
+     a_{11}x_1 + a_{21}x_2 + ... + a_{n1}x_n  \vspace{3 mm} \\
+    a_{12}x_1 +  a_{22}x_2 + ...+ a_{n2}x_n  \vspace{3 mm}  \\
+    \vdots \\
+     a_{1n}x_1 +  a_{2n}x_2 +... + a_{nn}x_n  \vspace{4 mm} \end{pmatrix} \\
+  &=  \begin{pmatrix}
+  a_{11} & a_{12} & \cdots & a_{1n} \\
+  a_{21} & a_{22} & \cdots & a_{2n} \\
+  \vdots  & \vdots  & \ddots & \vdots  \\
+  a_{n1} & a_{n2} & \cdots & a_{nn} 
+ \end{pmatrix}   \begin{pmatrix}
+  x_{1}    \\
+  x_{2}   \\
+  \vdots    \\
+  x_{n}  \end{pmatrix} + \begin{pmatrix}
+  a_{11} & a_{21} & \cdots & a_{n1} \\
+  a_{12} & a_{22} & \cdots & a_{n2} \\
+  \vdots  & \vdots  & \ddots & \vdots  \\
+  a_{1n} & a_{2n} & \cdots & a_{nn} 
+ \end{pmatrix}
+  \begin{pmatrix}
+  x_{1}    \\
+  x_{2}   \\
+  \vdots    \\
+  x_{n}  \end{pmatrix} \\
+  &= \left( A + A^T \right) x
 \end{align*}
 
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+#2(e)
+
+??? something about symmetry
+
+#2(f)
+
+\[ A = \begin{pmatrix} 1 & 4 \\ 2 & 1 \end{pmatrix}, \hspace{5 mm} 
+   A^T = \begin{pmatrix} 1 & 2 \\ 4 & 1 \end{pmatrix} \]
+
+\begin{align*}
+\begin{pmatrix} x_1  & x_2 \end{pmatrix} \begin{pmatrix} 1 & 4 \\ 2 & 1 \end{pmatrix} 
+  \begin{pmatrix} x_1 \\ x_2 \end{pmatrix} 
+  &= \begin{pmatrix} x_1  & x_2 \end{pmatrix}  \begin{pmatrix} x_1 +4x_2 \\ 2x_1 + x_2 \end{pmatrix} \\
+  &= x_1(x_1 + 4x_2) + x_2 (2x_1 + x_2) \\
+  &= x_1^2 +4x_1x_2+2x_1x_2 + x_2^2 \\
+  &= x_1^2 +6x_1x_2 + x_2^2 \\
+  & \\
+  & \\
+\begin{pmatrix} x_1  & x_2 \end{pmatrix} \begin{pmatrix} 1 & 2 \\ 4 & 1 \end{pmatrix} 
+  \begin{pmatrix} x_1 \\ x_2 \end{pmatrix} 
+  &= \begin{pmatrix} x_1  & x_2 \end{pmatrix}  \begin{pmatrix} x_1 +2x_2 \\ 4x_1 + x_2 \end{pmatrix} \\
+  &= x_1(x_1 + 2x_2) + x_2 (4x_1 + x_2) \\
+  &= x_1^2 +2x_1x_2+4x_1x_2 + x_2^2 \\
+  &= x_1^2 +6x_1x_2 + x_2^2 
+\end{align*}
 
 
-## Including Plots
+#3
 
-You can also embed plots, for example:
+```{r, echo=T}
+setwd("g:/504")
+dat<-read.table("economic_data.txt",header=T)
+options(scipen = 999)
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+y<-dat[,ncol(dat)]
+B<-as.matrix(dat[,2:(ncol(dat)-1)])
+B<-cbind(1,B)
+
+#solve(t(B) %*% B ) %*% t(B) %*% y
+
+cor(B[,-1])
+BB<-B[,-c(7,6)]
+cor(BB[,-1])
+solve(t(BB) %*% BB ) %*% t(BB) %*% y
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+\
+
+??? something about multicollinearity
+
+\
+
+```{r}
+dat<-dat[,-1]
+( lm(B~.,data=dat) )
+```
+
+#4
+
+```{r}
+ times<-rep(NA,10)
+
+for ( i in 1:10) {
+  
+  times[i]<-system.time( for ( j in 1:(10^i) ) { 1*1 } )[1]
+  if ( times[i] > 1 ) { break}}
+times
+
+system.time( for( i in 1: (1/times[7] * 10^7) ) { 1*1} )
+1/times[7] * 10^7
+ 
+```
+
