@@ -1,0 +1,81 @@
+---
+title: "504HW2_Leibert"
+output: pdf_document
+---
+
+Newton's Method
+
+```{r}
+MySqrt<-function(a){ 
+	
+	if (a == 0 ) { stop("Root is 0") }
+	if (a < 0 ) { stop("Positive Numbers only") }	
+
+	fx<-function(x ){(x^2)-a}
+	dfdx<-function(x){2*x}
+
+	Xi<-a;
+	iterations<-0
+	
+	repeat{	
+		xi<-Xi
+		Xi<-Xi-(fx(Xi)/dfdx(Xi))
+		iterations<-iterations+1
+		if( abs(Xi-xi) < 10^-9 ) {break}
+	}
+	
+	print(Xi);print(iterations)
+	print(paste0("R sqrt function: ",sqrt(a))) }
+
+MySqrt(1000)
+```
+
+
+Bisection
+
+
+```{r}
+
+MySqrt<-function(a){ 
+	
+	if (a == 0 ) { stop("Root is 0") }
+	if (a < 0 ) { stop("Positive Numbers only") }	
+
+	fx<-function(x ){(x^2)-a}
+	
+	XL<-0
+	XR<-a+1
+	iterations<-0
+	
+	repeat{	
+		XM<- (.5 * (XL + XR))
+		ifelse(fx(XM) > 0,XR<-XM,XL<-XM)
+		iterations<-iterations+1
+		if( abs(XR-XL) < 10^-9 ) {break}
+	}
+	
+	print(XM);print(iterations)
+	print(paste0("R sqrt function: ",sqrt(a))) }
+
+MySqrt(1000)
+
+```
+
+{\tt uniroot}
+
+```{r}
+MySqrt<-function(a){ 
+	
+	if (a == 0 ) { stop("Root is 0") }
+	if (a < 0 ) { stop("Positive Numbers only") }	
+
+	fx<-function(x ){(x^2)-a}
+
+	print(uniroot( fx, c(0,a) )$root)
+	print(uniroot(	fx, c(0,a)	)$iter)
+	print(paste0("R sqrt function: ",sqrt(a))) }
+
+MySqrt(1000)
+
+```
+
