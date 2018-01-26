@@ -16,7 +16,7 @@ fxy(4,4)-dfdy(4,4)*1
 
 
 # set up a stepsize
-alpha = 0.003
+alpha = 0.03
 
 # set up a number of iteration
 iter = 500
@@ -48,12 +48,12 @@ x;y
 
 x<-y<-4
 
-	x<-x-dfdx(x,y)*.3
-	y<-y-dfdy(x,y)*.3
+for( i in 1:91555) {
+
+	x1<-x-dfdx(x,y)*.0001 
+	y1<-y-dfdy(x,y)*.0001 
+	x<-x1;y<-y1
+
+}
+
 x;y
-
-
-
-
-
-
