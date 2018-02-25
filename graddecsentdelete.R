@@ -1,7 +1,7 @@
- rm(list=ls(all=T))
+ rm(list = ls())
+
 
 fxy<-function(x,y){ 100*(y-x^2)^2 + (1-x)^2 }
-
 dfdx<-function(x,y){ -400*x*y+400*x^3  + 2*x - 2 }
 dfdy<-function(x,y){ 200*y - 200 * x^2  }
 
@@ -47,13 +47,58 @@ for(i in 1:100000){
 x;y
 
 x<-y<-4
+for( i in 1:150000) {
 
-for( i in 1:91555) {
-
-	x1<-x-dfdx(x,y)*.0001 
-	y1<-y-dfdy(x,y)*.0001 
+	x1<-x-dfdx(x,y)*.0003 
+	y1<-y-dfdy(x,y)*.0003
 	x<-x1;y<-y1
+}
+x;y
 
+
+x<-y<-4
+vecc<-vec<-rep(NA,150)
+for( i in 1:150) {
+
+	vecc[i]<-fxy(x,y)
+	x1<-x-dfdx(x,y)*.0003 
+	y1<-y-dfdy(x,y)*.0003
+	x<-x1;y<-y1
+	vec[i]<-fxy(x,y)
+}
+
+fxy<-function(x,y){ 100*(y-x^2)^2 + (1-x)^2 }
+
+dfdx<-function(x,y){ -400*x*y+400*x^3  + 2*x - 2 }
+dfdy<-function(x,y){ 200*y - 200 * x^2  }
+
+
+x<-y<-4;
+for( i in 1:21111) {
+
+	di<-c(dfdx(x,y) ,dfdy(x,y))
+	#di<- (  di/(sqrt(sum(di^2)) ) )
+	si<-.5
+	while( fxy(x,y) <  fxy(  x-si*di[1], y-si*di[2])  ) {
+	si<-si/2 }
+	x<-x-di[1]*si 
+	y<-y-di[2]*si
+
+	fxy(x,y)
 }
 
 x;y
+
+a<-c(7,3);
+a<-a/(sqrt(sum(a^2))  )
+sum(a^2)
+
+x 
+
+
+
+
+
+ 
+
+

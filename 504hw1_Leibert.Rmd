@@ -2,6 +2,7 @@
 header-includes:
    - \usepackage{amsmath}
    - \usepackage{bm}
+   - \usepackage{amsfonts}
 output: pdf_document
 geometry: margin=.65in
 ---
@@ -13,6 +14,7 @@ Math 504
 Homework 1
 
 \ 
+
 
 \begin{itemize}
 
@@ -112,14 +114,14 @@ u \cdot Mv &= u \cdot  \begin{pmatrix}
 \end{itemize}
 
 \begin{align*}
- \nabla \left( b^T x \right) &= \nabla \left( \sum\limits_{i=1}^n b_i x_i\right) \\
- &= \nabla \left( b_1 x_1  + b_2 x_2 + \dots + b_n x_n \right) \\
+ \nabla \left( b^T x \right) &= \nabla \left( \sum\limits_{i=1}^n b_i x_i\right) \vspace{12 mm} \\
+ &= \nabla \left( b_1 x_1  + b_2 x_2 + \dots + b_n x_n \right) \\   
  &= \begin{pmatrix} \cfrac{\partial}{\partial x_1 } \ b_1 x_1  + b_2 x_2 + \dots + b_n x_n \\
                     \cfrac{\partial}{\partial x_2 } \ b_1 x_1  + b_2 x_2 + \dots + b_n x_n \\
                     \vdots \\
                     \cfrac{\partial}{\partial x_n } \ b_1 x_1  + b_2 x_2 + \dots + b_n x_n \\
-      \end{pmatrix} \\
- &= \begin{pmatrix} b_1 \\ b_2 \\ \vdots \\ b_n \end{pmatrix} \\
+      \end{pmatrix}       \vspace{2 mm} \\
+ &= \begin{pmatrix} b_1 \\ b_2 \\ \vdots \\ b_n \end{pmatrix} \vspace{2 mm} \\
  &= {\bf b}          
 \end{align*}
 
@@ -194,7 +196,7 @@ x^T A x &= \begin{pmatrix}  x_1 & x_2 & \cdots & x_n \end{pmatrix}
   &= \begin{pmatrix} \\   
     2a_{11}x_1 +a_{12}x_2 + ... + a_{1n}x_n + a_{21}x_2 + ... + a_{n1}x_n  \vspace{3 mm} \\
     a_{12}x_1 + a_{21}x_1 + 2a_{22}x_2 + ... + a_{2n}x_n + ... + a_{n2}x_n  \vspace{3 mm}  \\
-    \vdots \\
+    \vdots \vspace{3 mm} \\
     a_{1n}x_1 + a_{2n}x_2 + ... + a_{n1}x_1 + a_{n2}x_2 + ... + 2a_{nn}x_n  \vspace{4 mm} \end{pmatrix} \\
   & \\
   &= \begin{pmatrix} \\   
@@ -238,58 +240,183 @@ x^T A x &= \begin{pmatrix}  x_1 & x_2 & \cdots & x_n \end{pmatrix}
   &= \left( A + A^T \right) x
 \end{align*}
  
+\newpage
+
+\begin{itemize}
+\item [{\bf 2(e)}\hspace{2mm}] Explain why a general quadratic in $\mathbb{R}^n$ can be written as $f(x) = x^T A x + b^T x + c$.  No proof here, just explain the intuition. 
+\end{itemize}
+
 \ 
 
 \begin{itemize}
-\item [{\bf 2(e)}\hspace{2mm}] Explain why a general quadratic in $\mathbb{R}^n$ can be written as $f(x) = x^T A x + b^T x + c$.  No proof here, just explain the intuition.  https://math.stackexchange.com/questions/2019154/is-the-matrix-a-symmetric-in-the-quadratic-form
+\item [{\bf  }\hspace{2mm}] 
+The matrix-vector notation allows us to take an expression with $n$ terms and multiple sums and compacted it into the form $x^T A x +b^T + c$. We replaced summations with matrix multiplication and the use of dot products.
 \end{itemize}
 
-??? something about symmetry
+\ 
 
-\
-
-\
 
 \begin{itemize}
-\item [{\bf 2(f)}\hspace{2mm}] Let
-\[
+\item [{\bf 2(f)}\hspace{2mm}] Let $
 A = \begin{pmatrix} 
 1 & 4 \\
 2 & 1 
-\end{pmatrix} \]
-and let $f(x) = x^T A x.$  Show that $f(x)$ can be rewritten as $f(x) = x^T B x$ with $B$ symmetric.  (Hint: write out $f(x)$ as a sum of terms rather than a matrix expression.) Then explain why for the general quadratic in (e), we can always asssume that $A$ is symmetric.
+\end{pmatrix} $ and let $f(x) = x^T A x.$  
+
+Show that $f(x)$ can be rewritten as $f(x) = x^T B x$ with $B$ symmetric.  (Hint: write out $f(x)$ as a sum of terms rather than a matrix expression.) Then explain why for the general quadratic in (e), we can always asssume that $A$ is symmetric.
 \end{itemize}
 
-\[ A = \begin{pmatrix} 1 & 4 \\ 2 & 1 \end{pmatrix}, \hspace{5 mm} 
-   A^T = \begin{pmatrix} 1 & 2 \\ 4 & 1 \end{pmatrix} \]
-
+\begin{itemize} \item [{\bf  }\hspace{2mm}]
+\begin{minipage}[t]{3.3 in}
+ \[ A = \begin{pmatrix} 1 & 4 \\ 2 & 1 \end{pmatrix} \]
 \begin{align*}
-\begin{pmatrix} x_1  & x_2 \end{pmatrix} \begin{pmatrix} 1 & 4 \\ 2 & 1 \end{pmatrix} 
-  \begin{pmatrix} x_1 \\ x_2 \end{pmatrix} 
+  x^T A x &= \begin{pmatrix} x_1  & x_2 \end{pmatrix} \begin{pmatrix} 1 & 4 \\ 2 & 1 \end{pmatrix} 
+  \begin{pmatrix} x_1 \\ x_2 \end{pmatrix} \\
   &= \begin{pmatrix} x_1  & x_2 \end{pmatrix}  \begin{pmatrix} x_1 +4x_2 \\ 2x_1 + x_2 \end{pmatrix} \\
   &= x_1(x_1 + 4x_2) + x_2 (2x_1 + x_2) \\
   &= x_1^2 +4x_1x_2+2x_1x_2 + x_2^2 \\
-  &= x_1^2 +6x_1x_2 + x_2^2 \\
-  & \\
-  & \\
-\begin{pmatrix} x_1  & x_2 \end{pmatrix} \begin{pmatrix} 1 & 2 \\ 4 & 1 \end{pmatrix} 
-  \begin{pmatrix} x_1 \\ x_2 \end{pmatrix} 
-  &= \begin{pmatrix} x_1  & x_2 \end{pmatrix}  \begin{pmatrix} x_1 +2x_2 \\ 4x_1 + x_2 \end{pmatrix} \\
-  &= x_1(x_1 + 2x_2) + x_2 (4x_1 + x_2) \\
-  &= x_1^2 +2x_1x_2+4x_1x_2 + x_2^2 \\
   &= x_1^2 +6x_1x_2 + x_2^2 
 \end{align*}
+ \end{minipage} 
+\begin{minipage}[t]{3.3 in}
+ \[ B = \cfrac{A+A^T}{2} = \begin{pmatrix} 1 & 3 \\ 3 & 1 \end{pmatrix} \]
+ \begin{align*}
+x^T B x &= \begin{pmatrix} x_1  & x_2 \end{pmatrix} \begin{pmatrix} 1 & 3 \\ 3 & 1 \end{pmatrix} 
+  \begin{pmatrix} x_1 \\ x_2 \end{pmatrix} \\
+  &= \begin{pmatrix} x_1  & x_2 \end{pmatrix}  \begin{pmatrix} x_1 +3x_2 \\ 3x_1 + x_2 \end{pmatrix} \\
+  &= x_1(x_1 + 3x_2) + x_2 (3x_1 + x_2) \\
+  &= x_1^2 +3x_1x_2+3x_1x_2 + x_2^2 \\
+  &= x_1^2 +6x_1x_2 + x_2^2 
+\end{align*}
+ \end{minipage} 
+\end{itemize}
 
-\
+\ 
 
-\
+\ 
+
+We can assume $A$ is symmetric because $A$ is a square matrix and can be written as a sum, $A=A_S+A_A$. Where, $A_S = \cfrac{1}{2} \left( A+A^T\right)$, is a symmetric matrix known as the symmetric part of $A$; and $A_A = \cfrac{1}{2} \left( A-A^T\right)$, is an antisymmetric matrix known as the antisymmeric part of $A$.
+
+The antisymmertic matrix is skew symmetric since, $A_A^T = \left( \cfrac{A-A^T}{2} \right)^T = \cfrac{A^T-A}{2} = - \cfrac{A-A^T}{2} = -A_A$. Also because $x^TA_A x$ is a scalar, $x^TA_A x = \left( x^T A_A x \right)^T = x^TA_A^Tx$.
+
+\begin{align*}
+x^T \ A_A \ x &= x^T A_A^T \ x \\
+x^T \ A_A \ x &= - x^T A_A \ x \\
+2 x^T \ A_A  \ x &= 0 \\
+x^T A_A  \ x &= 0
+\end{align*}
+
+Now we can write,
+
+\begin{align*}
+x^T A x &= x^T \left( \cfrac{A+A^T}{2} + \cfrac{A-A^T}{2} \right) x \\
+&= x^T \left( \cfrac{A+A^T}{2} \right) x + x^T \left( \cfrac{A-A^T}{2} \right)x  \\
+&= x^T A_S  x + x^T A_A x \\
+&= x^T A_S x + 0 \\
+&= x^T A_S x
+\end{align*}
+
+And we know $A_S$ is symmetric. Because $x^TAx$ ignores the antisymmertic part of A we can assume A is symmetric.
+
+\ 
+
 
 \begin{itemize}
 \item [{\bf 2(g)}\hspace{2mm}] Let $x \in \mathbb{R}^n$ and $f(x) = x^T A x + b^T x + c$ where $A$ is an $n \times n$ matrix, $b$ is a $n$ dimensional vector and $c$ is a scalar.  Show that $\nabla f(x) = (A + A^T)x + b$.  Solve for the critical point of $f(x)$.  (We essentially did this in class.)
 \end{itemize}
 
+\ 
 
-#3
+\begin{align*}
+\nabla f(x) &= \nabla\left( x^T A x + b^T x + c \right) \\
+&= \nabla\left( x^T A x  \right) + \nabla\left( b^T x   \right) + \nabla c \\
+&= \left( A + A^T \right) x +  {\bf b}    
+\end{align*}
+
+\begin{align*}
+{\bf 0} &= \left( A + A^T \right) x +  {\bf b}     \\
+\left( A + A^T \right) x   &= -  {\bf b} \\
+x &= - \left( A + A^T \right)^{-1} {\bf b} \\
+x &= - \cfrac{1}{2}  \ A^{-1} \   {\bf b}
+\end{align*}
+
+\ 
+
+\ 
+
+
+\begin{itemize}
+\item [{\bf 3}\hspace{2mm}]Download the datafile \verb+economic_data.txt+ using the \verb+read.table+ function, don't forget to set \verb+header=T+.   See the datafile for details regarding the column values and meaning.   Assume the linear model
+$B \sim \alpha_0 + \sum_{i=1}^6 \alpha_i A_i$.
+\end{itemize}
+
+\ 
+
+\begin{itemize}
+\item [{\bf 3(a)}\hspace{2mm}] Fit this model using the normal equations to determine $\alpha$. To do this, first derive the normal equations.  (I did this in class, I just want you to go through the argument yourself.  You can use your results from problem 2.)  You will find that R gives you an error, saying that the matrix involved is computational singular.   (The problem here has to do with calculating the inverse in the normal equations, we will explore this issue in the coming weeks.)
+\end{itemize}
+
+
+\ 
+
+\begin{itemize}
+\item [{\bf  }\hspace{2mm}]
+Derivation of the normal equations.
+
+Objective: $\min\limits_{\alpha \in \mathbb{R}^{n+1}} L(\alpha) \Longrightarrow \nabla L(\alpha) = 0 \Longrightarrow 
+  \alpha = -\cfrac{1}{2} \ A^{-1}b \ $
+
+\end{itemize}
+
+\[
+L(\alpha) = \sum_{i=1}^N \left( \underbrace{ y_i - \alpha_0 + \alpha_1x_1^{(i)} + \alpha_2x_2^{(i)} + ... \alpha_nx_n^{(i)} }_{\text{$r_i$}} \right)^2
+\]
+
+
+\begin{align*}
+r_i = \begin{pmatrix} r_1 \\ r_2 \\ \vdots \\ r_N \end{pmatrix} &= 
+  \begin{pmatrix}  y_1 - \alpha_0 + \alpha_1x_1^{(1)} + \alpha_2x_2^{(1)} + ...+ \alpha_nx_n^{(1)}  
+  \\  y_2 - \alpha_0 + \alpha_1x_1^{(2)} + \alpha_2x_2^{(2)} + ...+ \alpha_nx_n^{(2)}  \\ 
+  \vdots \\ 
+  y_N - \alpha_0 + \alpha_1x_1^{(N)} + \alpha_2x_2^{(N)} + ... +\alpha_nx_n^{(N)}  \end{pmatrix} \\
+  & \\
+  &= \begin{pmatrix} y_1 \\ y_2 \\ \vdots \\ y_N \end{pmatrix} - 
+  \begin{pmatrix} 
+  1 & x_1^{(1)} & x_2^{(1)} & ... & x_n^{(1)} \\
+  1 & x_1^{(2)} & x_2^{(2)} & ... & x_n^{(2)} \\
+  \vdots \\
+   1 & x_1^{(N)} & x_2^{(N)} & ... & x_n^{(N)} \\
+  \end{pmatrix}
+  \begin{pmatrix} \alpha_1 \\ \alpha_2 \\ \vdots \\ \alpha_n \end{pmatrix} \\
+  & \\
+  {\bf r} &= Y-B \alpha
+\end{align*}
+
+\begin{align*}
+L(\alpha) &= \sum_{i=1}^N \left(   y_i - \alpha_0 + \alpha_1x_1^{(i)} + \alpha_2x_2^{(i)} + ... \alpha_nx_n^{(i)}  \right)^2 \\
+&= \sum_{i=1}^N r_i^2 \\
+&= {\bf r}\cdot{\bf r} \\
+&=\left(y-B \alpha \right) \cdot \left(y-B \alpha\right) \\
+&=\left(y-B \alpha\right)^T \left(y-B \alpha\right) \\
+&= \left(y^T- (B \alpha)^T \right) \left(y-B \alpha\right) \\
+&=y^Ty - (B\alpha)^Ty-y^TB\alpha + (B \alpha)^T B \alpha \\
+&= y^Ty - 2(B^T y )^T  \alpha +\alpha^T B^T B \alpha \\
+&\\
+& \text{Let }  A=B^TB \text{, } b = -2B^Ty \text{ and } c =y^Ty  \\
+&= \alpha^T A\alpha +b^T \alpha + c
+\end{align*}
+
+\begin{itemize}
+\item [{\bf  }\hspace{2mm}]
+Normal equations
+\end{itemize}
+
+\begin{align*}
+\alpha &= -\cfrac{1}{2} \left(B^T B \right)^{-1} \left(-2B^T y \right) \\
+&= \left( B^T B \right)^{-1} B^T y
+\end{align*}
+
+\ 
 
 ```{r, echo=T}
 library(RCurl)
@@ -302,27 +429,85 @@ B<-as.matrix(dat[,2:(ncol(dat)-1)])
 B<-cbind(1,B)
 
 #solve(t(B) %*% B ) %*% t(B) %*% y
+```
 
+\ 
+
+\begin{itemize}
+\item [{\bf 3(b)}\hspace{2mm}] Now repeat (a), but throw out covariates until R does not issue an error.  Can you determine the covariates responsible for the error?
+\end{itemize}
+
+
+\ 
+
+```{r, echo=T}
 cor(B[,-1])
-BB<-B[,-c(7,6)]
+```
+
+\ 
+
+\begin{itemize} \item [{\bf  }\hspace{2mm}] 
+The variables A2, A5, and A6 have multicollinearity issues which is causing the the matrix to be singluar.
+\end{itemize}
+
+\ 
+
+```{r, echo=T}
+BB<-B[,-c(6,7)]
 cor(BB[,-1])
 solve(t(BB) %*% BB ) %*% t(BB) %*% y
 ```
 
-\
+\ 
 
-??? something about multicollinearity
+\begin{itemize}
+\item [{\bf 3(c)}\hspace{2mm}] Repeat (a) and (b), but fit the model using the $\textbf{lm}$ function in R.  Compare your results to (a),(b).
+\end{itemize}
 
-\
+\ 
 
 ```{r}
 dat<-dat[,-1]
 ( lm(B~.,data=dat) )
+BB<-BB[,-1]
+BB<-as.data.frame(BB)
+BB$B<-dat$B
+( lm(B~.,data=BB) )
 ```
 
-#4
+
+\ 
+
+\begin{itemize}
+\item [{\bf  }\hspace{2mm}] The results do not look at all similar between the lm function and the normal equations with A5 and A6 removed. With the adjusted dataframe with A5 and A6 removed, the $\alpha$'s are exactly the same.
+\end{itemize}
+
+\ 
+
+\begin{itemize}
+\item [{\bf 4}\hspace{2mm}] See how fast your computer is.  Let $f(x) = x^2 + 3x + 2$.   Write a R function \textbf{exhaustive(gridSize)} that minimizes $f(x)$ by testing a grid of points starting at $-10$, ending at $10$, and with step size given by \textbf{gridSize}.  How small can you make \textbf{gridSize} before the computation takes more than roughly 1 seconds?  Decide how many multiplications your computer+R can do in $1$ second.
+\end{itemize}
+
+\ 
 
 ```{r}
+exhustive<-function(gridSize){	
+	
+	fx<-function(x){x^2+3*x+2}
+	
+	minimize<-data.frame( seq(-10,10,by=1/(gridSize)),
+		fx( seq(-10,10,by=1/(gridSize)) )	) 
+	minimize<-minimize[which(minimize[,2] == 
+		min(minimize[,2])), ]
+		names(minimize)<-c("x","MIN")
+	times<-system.time( min( fx( seq(-10,10,by=1/(gridSize)) ))  )[3] 
+	print(times);print(minimize)
+}
+
+
+######
+
+
  times<-rep(NA,10)
 
 for ( i in 1:10) {
@@ -334,5 +519,10 @@ times
 system.time( for( i in 1: (1/times[7] * 10^7) ) { 1*1} )
 1/times[7] * 10^7
  
+######
+
+exhustive(2000000)
+
 ```
 
+About four million multiplications per second.

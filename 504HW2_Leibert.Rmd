@@ -1,9 +1,34 @@
 ---
-title: "504HW2_Leibert"
 output: pdf_document
+geometry: margin=.75in
 ---
 
-Newton's Method
+Michael Leibert
+
+Math 504
+
+Homework 2
+
+\ 
+
+\ 
+
+\begin{itemize}
+\item[2.] Write a function called \textbf{MySqrt(a)} that computes the square root of a scalar $a$, i.e. $\sqrt{a}$.   Solve this problem by finding the root of $f(x) = x^2 - a$.  The function should return $\sqrt{a}$ and the number of iterations needed to reach the answer.   For each method below, compute $\sqrt{1000}$ and show the number of iterations.
+\end{itemize}
+
+\ 
+
+ \begin{itemize}  
+   \item[{\bf }]
+ \begin{itemize}
+ \item[(a)] Implement \textbf{MySqrt}(a) using Newton's method. 
+ \end{itemize}
+ \end{itemize}
+
+\ 
+
+
 
 ```{r}
 MySqrt<-function(a){ 
@@ -31,7 +56,18 @@ MySqrt(1000)
 ```
 
 
-Bisection
+
+\ 
+
+ \begin{itemize}  
+   \item[{\bf }]
+ \begin{itemize}
+ \item[(b)] Implement \textbf{MySqrt}(a) using bisection method. 
+ \end{itemize}
+ \end{itemize}
+
+\ 
+
 
 
 ```{r}
@@ -61,7 +97,18 @@ MySqrt(1000)
 
 ```
 
-{\tt uniroot}
+
+\ 
+
+ \begin{itemize}  
+   \item[]
+ \begin{itemize}
+ \item[(c)] Implement \textbf{MySqrt}(a) using the R function \textbf{uniroot}. 
+ \end{itemize}
+ \end{itemize}
+
+\ 
+
 
 ```{r}
 MySqrt<-function(a){ 
@@ -79,3 +126,279 @@ MySqrt(1000)
 
 ```
 
+
+\ 
+
+
+
+
+\ 
+
+ \begin{itemize}  
+   \item[3.] Let $f(x,y) = 100(y - x^2)^2 + (1 - x)^2$.   This is the famed banana function (see wikipedia). The minimum of $f$ is $(1,1)$ (why?). 
+   
+   
+\ 
+
+Both terms will be nonnegative because they are positive number (100 and 1) multiplied by a square. The first term will be 0 when $x=y$ and the second term will be $0$ when $x=1$. So both terms will be $0$ when $x=1$ and $y=1$. 
+
+ \end{itemize}
+
+
+\ 
+
+ \begin{itemize}  
+   \item[{\bf }]
+ \begin{itemize}
+ \item[(a)] Starting at the point $(4,4)$ use a fixed step size to locate the minimum.  Here, since we are minimizing, your direction should be $d^{(i)} = -\nabla f(x^{(i)})$.  How many iterations before you find the minimum?  
+ \end{itemize}
+ \end{itemize}
+
+\ 
+
+
+
+```{r}
+fxy<-function(x,y){ 100*(y-x^2)^2 + (1-x)^2 }
+dfdx<-function(x,y){ -400*x*y+400*x^3  + 2*x - 2 }
+dfdy<-function(x,y){ 200*y - 200 * x^2  }
+
+x<-y<-4
+i=1
+repeat{
+	x1<-x-dfdx(x,y)*.0003 
+	y1<-y-dfdy(x,y)*.0003
+	x<-x1;y<-y1
+	i=i+1
+	if( (1-10^-4 < x & x < 1+10^-4) & (1-10^-4 < y & y < 1+10^-4) ){break}
+}
+x;y;i
+
+```
+
+
+
+\ 
+
+ \begin{itemize}  
+   \item[{\bf }]
+ \begin{itemize}
+ \item[(b)] Starting at the point $(4,4)$ use steepest descent with backtracking to "find" the minimum.  How many iterations before you find the mininum? 
+ \end{itemize}
+ \end{itemize}
+
+\ 
+
+
+```{r}
+x<-y<-4;
+i=1
+repeat{
+	di<-c(dfdx(x,y) ,dfdy(x,y))
+	di<- (  di/(sqrt(sum(di^2)) ) )
+	si<-1
+	while( fxy(x,y) <  fxy(  x-si*di[1], y-si*di[2])  ) {
+	si<-si/2 }
+	x<-x-di[1]*si 
+	y<-y-di[2]*si
+	i=i+1
+	if( (1-10^-4 < x & x < 1+10^-4) & (1-10^-4 < y & y < 1+10^-4) ){break}
+}
+
+x;y;i
+
+```
+
+
+
+\ 
+
+ \begin{itemize}  
+   \item[ ]
+ \begin{itemize}
+ \item[(b)] Use the R function \textbf{nlm} to find the minimum starting at $(4,4)$.  How many iterations?  Compare to (a) and (b). 
+ \end{itemize}
+ \end{itemize}
+
+\ 
+
+```{r}
+
+fxy<-function(xy){ 
+	x<-xy[1]
+	y<-xy[2]
+	100*(y-x^2)^2 + (1-x)^2 }
+
+nlm(fxy,c(4,4))$estimate;nlm(fxy,c(4,4))$iterations
+```
+
+ \ 
+   \begin{itemize}  \item[] 
+  \begin{itemize}  \item[] 
+  \begin{itemize}
+ \item[]  \textbf{nlm} is considerably more efficient than both (a) and (b). \textbf{nlm} took only 55 iterations compared with 17,183 with backtracking and 83,264 with a fixed step size.
+ \end{itemize}
+
+ \end{itemize}
+ \end{itemize}
+
+ 
+\ 
+
+\ 
+
+\begin{itemize}
+\item[4.] Attached you will find the o-ring dataset discussed in class.   Let $y$ be the o-ring failure variable and $x$ the temperature.  Then logistic regression, as discussed in class, assumes the model
+\end{itemize}
+
+ 
+\hfil \[P(y=1 | x, \alpha_0, \alpha_1) = \frac{1}{1 + \exp(-\alpha_0 - \alpha_1 x)}\]
+
+\ 
+
+
+ \begin{itemize}  
+   \item[ ]
+ \begin{itemize}
+ \item[(a)] Let  
+ 
+ \hfil \[ L(\alpha) = \prod_{i=1}^N \left(y_i P(y=1 | x_i, \alpha_0, \alpha_1) + (1 - y_i) (1-P(y=1 | x_i, \alpha_0, \alpha_1))\right) \]
+
+Explain why this is the product of the probability of each datapoint given $\alpha$.  $L(\alpha)$ is the likelihood function.
+
+\ 
+
+ \begin{itemize}
+ \item[] $P(y=1 | x, \alpha_0, \alpha_1)$ is the probability of failure given the temperature and $\alpha_0,\alpha_1$. Because $y_i$ is binary, the $i$th observation records the probability of failure or the probability of success, $1-P(y=1 | x, \alpha_0, \alpha_1)$. The likelihood estimates the parameters through the given data, and because the model assumes the observations are independent we take their product to generate the likelihood for $\alpha_0,\alpha_1$.   
+ \end{itemize}
+
+ \end{itemize}
+ \end{itemize}
+ 
+ \ 
+ 
+ 
+ 
+ \begin{itemize}  
+   \item[ ]
+ \begin{itemize}
+ \item[(b)] Show that  
+ \hfil \[ \log L(\alpha) = \sum_{i=1}^N \left((1-y_i)(-\alpha_0 - \alpha_1 x_i) - \log(1 + \exp(-\alpha_0 - \alpha_1 x_i))\right) \]
+
+by considering $y_i=1$ and then $y_i = 0$.  
+
+ \begin{itemize}
+ \item[] \begin{align*}
+    \log L(\alpha) & = \log \left[ \  \prod_{i=1}^N \ y_i \ P(y=1 | x_i, \alpha_0, \alpha_1) + (1 - y_i) \left( 1-P(y=1 | x_i, \alpha_0, \alpha_1)\right) \right] \\
+&= \sum_{i=1}^N \ \log \Big[    y_i \ P(y=1 | x_i, \alpha_0, \alpha_1) + (1 - y_i) (1-P(y=1 | x_i, \alpha_0, \alpha_1)) \Big] \\
+&= \sum_{i=1}^N \ \log \left[   y_i \ \frac{1}{1 + \exp(-\alpha_0 - \alpha_1 x_i)} + (1 - y_i) \left(1-\frac{1}{1 + \exp(-\alpha_0 - \alpha_1 x_i)} \right) \right] 
+\end{align*}
+
+\
+
+$y_i = 0$
+\begin{align*}
+      \log L(\alpha)  & =\sum_{i=1}^N \ \log \left[  (0) \ \frac{1}{1 + \exp(-\alpha_0 - \alpha_1 x_i)} + (1 -0) \left(1-\frac{1}{1 + \exp(-\alpha_0 - \alpha_1 x_i)} \right) \right]  \\
+    &=\sum_{i=1}^N \ \log \left(1-\frac{1}{1 + \exp(-\alpha_0 - \alpha_1 x_i)} \right)   \\
+    &=\sum_{i=1}^N \  \log \left(\frac{  \exp(-\alpha_0 - \alpha_1 x_i) }{1 + \exp(-\alpha_0 - \alpha_1 x_i)} \right)   \\
+    &= \sum_{i=1}^N \  \log \Big[  \exp(-\alpha_0 - \alpha_1 x_i)  \Big] - \log \Big[ 1 + \exp(-\alpha_0 - \alpha_1 x_i) \Big] \\
+    &= \sum_{i=1}^N \  \big( -\alpha_0 - \alpha_1 x_i \big) - \log \Big[ 1 + \exp(-\alpha_0 - \alpha_1 x_i) \Big] \\
+\end{align*}
+
+\ 
+
+$y_i = 1$
+\begin{align*}
+   \log L(\alpha)  & =\sum_{i=1}^N \   \log \left[  (1) \ \frac{1}{1 + \exp(-\alpha_0 - \alpha_1 x_i)} + (1 -1) \left(1-\frac{1}{1 + \exp(-\alpha_0 - \alpha_1 x_i)} \right) \right]  \\
+    &= \sum_{i=1}^N \ \log \left(     \frac{1}{1 + \exp(-\alpha_0 - \alpha_1 x_i)} \right)  \\
+    &= \sum_{i=1}^N \  - \log \Big[      1 + \exp(-\alpha_0 - \alpha_1 x_i) \Big]
+\end{align*}
+
+\ 
+
+The difference between $y_i = 0$ and $y_i = 1$ is the $\big( -\alpha_0 - \alpha_1 x_i \big) $ term when $y_i = 0$. So we can capture both cases by writing:
+
+\begin{align*}
+    \log L(\alpha) &= \sum_{i=1}^N \ \log \left[   y_i \ \frac{1}{1 + \exp(-\alpha_0 - \alpha_1 x_i)} + (1 - y_i) \left(1-\frac{1}{1 + \exp(-\alpha_0 - \alpha_1 x_i)} \right) \right] \\
+    &= \sum_{i=1}^N \ \big( 1-y_i \big) \big( -\alpha_0 - \alpha_1 x_i \big) - \log \Big[      1 + \exp(-\alpha_0 - \alpha_1 x_i) \Big]
+\end{align*}
+  
+ \end{itemize}
+
+ \end{itemize}
+ \end{itemize}
+ 
+ \ 
+ 
+ 
+ \begin{itemize}  
+   \item[ ]
+ \begin{itemize}
+ \item[(c)] Use steepest ascent to find $\alpha$ that solves $\max_{\alpha \in \mathbb{R}^2} \log L(\alpha)$.   Once you find $\alpha$ plot $P(y=1 | x, \alpha_0, \alpha_1)$ for a range of $x$ values and include the datapoints in the plot.  Is the logistic curve a good fit?
+ 
+ \end{itemize}
+ \end{itemize}
+ 
+ \ 
+ 
+```{r eval=FALSE}
+
+#likelihood
+l<-function(a0,a1,x,y){	sum(	(1-y)*(-a0-a1*x) - log(1+exp(-a0-a1*x))	)}
+
+#Gradient components
+dlda0<-function(a0,a1,x,y){  sum( ((1)/(exp(a0+a1*x)+1)) + y -1  )}
+
+dlda1<-function(a0,a1,x,y){  sum( ((x)/(exp(a0+a1*x)+1))	+ x * (y-1)  )}
+
+#starting point
+a0<-1;a1<-0
+
+for( i in 1:5500000) {
+	di<-c( dlda0(a0,a1,x,y) , dlda1(a0,a1,x,y) )
+	di<- (  di/(sqrt(sum(di^2)) ) )
+	si<-1
+	while(  l(a0,a1,x,y) >  l( a0+di[1]*si ,	a1+di[1]*si  ,x,y) ){
+	si<-si/2 }
+	a0<-a0+di[1]*si 
+	a1<-a1+di[1]*si  
+}
+
+```
+
+```{r}
+OR<-read.table("g:/504/o_ring_data.txt",header=T)
+x<-OR[,1];y<-OR[,2]
+plot(x,y,xlab="temperature",ylab="Probability of failure")
+curve( 1/(1+exp(-15.0429+0.2322*x)), from=50, to=85, add=TRUE)
+```
+
+ \ 
+ 
+ Our simple model looks like a good fit. For lower teperatures it models the probability of failure high and as the teperature rises the probability decreases. It still provides a useful probability at intermediate levels of temperatures as well. However, there are some high temperature points $(>70)$ that are failures, so we may need more observations to construct a better model.
+ 
+ \ 
+ 
+  
+ \begin{itemize}  
+   \item[ ]
+ \begin{itemize}
+ \item[(d)]  Check your answers using R's \textbf{glm} function
+ \end{itemize}
+ \end{itemize}
+ 
+ \ 
+ 
+```{r}
+glm(Failure~Temp, data=OR, family = "binomial")
+```
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 

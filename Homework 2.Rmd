@@ -1,0 +1,209 @@
+---
+title: "Homework 2"
+author: "Melissa Tran"
+date: "1/28/2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#2
+Part(a) Newton's Method
+```{r, include=TRUE}
+MySqrt <- function(a){
+  x <- a/2
+  epsilon <- 0.001
+  i=0
+  while(abs(x^2-a) > epsilon){
+    i=i+1
+    x <- x - (x^2-a)/(2*x)
+  }
+  return(paste(x,i))  
+}
+MySqrt(1000)
+```
+Part(b) Bisection Method
+```{r, include=TRUE}
+MySqrt <- function(a){
+  epsilon <- 0.001
+  x_L <- 0
+  x_R <- a
+  x_M <- a/2
+  i=0
+  while((x_M^2-a != 0)&&(x_R-x_L >= epsilon)){
+    i=i+1
+    if((x_L^2-a)*(x_M^2-a)<0){x_R <- x_M}
+    else{x_L <- x_M}
+    x_M <- (x_R+x_L)/2
+  }
+  return(paste(x_M, i))
+}
+MySqrt(1000)
+```
+Part(c) Uniroot
+```{r, include=TRUE}
+MySqrt <- function(a){
+  Rfunc<-uniroot(function(x) x^2-a, interval=c(0,a))
+  return(paste(Rfunc$root,Rfunc$iter))
+}
+MySqrt(1000)
+```
+#3
+```{r, include=TRUE}
+#function for f(x,y)
+fx <- function(a){
+  x <- a[1]
+  y <- a[2]
+  100*(y-x^2)^2+(1-x)^2
+}
+#function for gradient of f(x,y)
+grad <- function(a){
+  x <- a[1]
+  y <- a[2]
+  c(200*(y-x^2)*(-2*x)+2*(1-x)*(-1),
+    200*(y-x^2))
+}
+```
+Part(a) Fixed Step
+```{r, include=TRUE}
+x <- c(4,4)
+s <- 0.01
+i=0
+while((i<100000)){ #stops after 100,000 iterations
+  i=i+1  
+  d <- -grad(x)/sqrt(sum(grad(x)^2))
+  x <- x + s*d 
+}
+print(paste(x[1],x[2],i))
+```
+
+Part(b) Backtracking
+```{r, include=TRUE}
+x <- c(4,4)
+fx_before <- fx(x)
+fx_next <- fx(x)-1
+i=0
+
+while(fx_before>fx_next){ 
+  i=i+1  
+  fx_before <- fx(x)  
+  d <- -grad(x)/sqrt(sum(grad(x)^2))
+  x_out <- x
+  x <- x + s*d 
+  fx_next <- fx(x)
+  s <- 1
+  while(fx_before<fx_next){
+    s <- s/2
+    x <- x_out + s*d 
+    fx_next <- fx(x)
+  } 
+}
+print(paste(x_out[1],x_out[2],i))
+```
+
+Part(c) nlm Function
+```{r, include=TRUE}
+Rfunc <- nlm(fx,c(4,4))
+print(paste(Rfunc$estimate[1],Rfunc$estimate[2],Rfunc$iterations))
+```
+The number of iterations using the R function nlm (54) is far fewer than the number of iterations from the fixed-step method (100,000) and from the backtracking step-size method (~45k).
+
+#4
+Part(a)
+$$L(\alpha) = \prod_{i=1}^N \left(y_i P(y=1 | x_i, \alpha_0, \alpha_1) + (1 - y_i) (1-P(y=1 | x_i, \alpha_0, \alpha_1))\right)$$
+is the product of the probability of each datapoint given $\alpha$ because $P(y=1|x_i,\alpha_0,\alpha_1)$ (call it $P_1$) is the probability that the o-ring in observation $i$ fails given the corresponding temperature $x_i$, so $1-P(y=1|x_i,\alpha_0,\alpha_1)$ (call it $P_0$) is the probability that o-ring did not fail given the same $x_i$. If the o-ring from the datapoint in question failed its probability is $P_1$ but if it did not fail its probability is $P_0$; the datapoint's probablity can only be either $P_1$ or $P_0$. Since $y_i \in \{0,1\}$, we can express the datapoint's probability as the sum $y_i P_1 + (1 - y_i)P_0$ because only one of the terms will be non-zero and the expression will equal either $P_1$ or $P_0$ depending on $y_i$. Since we consider the events in each datapoint to be independent, the probability of all the datapoints is their product of their individual probabilities. The likelihood function is the expression for this probability of all the datapoints, but as a function of $\alpha$ instead of $(x_i,y_i)$.
+
+Part(b)
+
+With $L(\alpha)$ as stated in part(a), we have $logL(\alpha)$
+
+$=log \prod_{i=1}^N (y_i P(y=1 | x_i, \alpha_0, \alpha_1) + (1 - y_i) (1-P(y=1 | x_i, \alpha_0, \alpha_1)))$
+
+$=\sum_{i=1}^N log[y_i P(y=1 | x_i, \alpha_0, \alpha_1) + (1 - y_i) (1-P(y=1 | x_i, \alpha_0, \alpha_1))]$
+
+Here we recall $y_i \in \{0,1\}$. 
+
+We know that if $y_i=0$, 
+
+$log[y_i P(y=1 | x_i, \alpha_0, \alpha_1) + (1 - y_i) (1-P(y=1 | x_i, \alpha_0, \alpha_1))]$
+
+$=log[(1-P(y=1 | x_i, \alpha_0, \alpha_1))]$
+
+$=log[(1-\frac{1}{1 + \exp(-\alpha_0 - \alpha_1 x_i)})]$
+
+$=log[(\frac{\exp(-\alpha_0 - \alpha_1 x_i)}{1 + \exp(-\alpha_0 - \alpha_1 x_i)})]$
+
+$=log[\exp(-\alpha_0 - \alpha_1 x_i)]- log[1 + \exp(-\alpha_0 - \alpha_1 x_i)]$
+
+$=(-\alpha_0 - \alpha_1 x_i)- log[1 + \exp(-\alpha_0 - \alpha_1 x_i)]$ $(*)$
+
+And if $y_i=1$, 
+
+$log[y_i P(y=1 | x_i, \alpha_0, \alpha_1) + (1 - y_i) (1-P(y=1 | x_i, \alpha_0, \alpha_1))]$ 
+
+$=log[P(y=1 | x_i, \alpha_0, \alpha_1)]$
+
+$=log\frac{1}{1 + \exp(-\alpha_0 - \alpha_1 x_i)}$
+
+$=-log[1 + \exp(-\alpha_0 - \alpha_1 x_i)]$ $(**)$
+
+The difference between $(*)$ where $y_i=0$ and $(**)$ where $y_i=1$ is only the term $(-\alpha_0 - \alpha_1 x_i)$ so we can say 
+
+$log[y_i P(y=1 | x_i, \alpha_0, \alpha_1) + (1 - y_i) (1-P(y=1 | x_i, \alpha_0, \alpha_1))]$ 
+
+$=(1-y_i)(-\alpha_0 - \alpha_1 x_i)- log[1 + \exp(-\alpha_0 - \alpha_1 x_i)]$
+
+Thus, it follows that $logL(\alpha)$
+
+$=\sum_{i=1}^N log[y_i P(y=1 | x_i, \alpha_0, \alpha_1) + (1 - y_i) (1-P(y=1 | x_i, \alpha_0, \alpha_1))]$
+
+$=\sum_{i=1}^N [(1-y_i)(-\alpha_0 - \alpha_1 x_i)- log(1 + \exp(-\alpha_0 - \alpha_1 x_i))]$
+
+Part(c)
+```{r, include=TRUE}
+o_data <- read.table("o_ring_data.txt", header=TRUE)
+
+#function for logL(a)
+logL <- function(a){
+  x <- o_data$Temp
+  y <- o_data$Failure
+  sum( (1-y)*(-a[1]-a[2]*x)-log(1+exp(-a[1]-a[2]*x)) )
+}
+#function for gradient of logL(a)
+grad <- function(a){
+  x <- o_data$Temp
+  y <- o_data$Failure
+  a0 <- a[1]
+  a1 <- a[2]
+  c(sum(exp(-a0-a1*x)/(1+exp(-a0-a1*x))-(1-y)),
+    sum(-x*exp(-a0-a1*x)/(1+exp(-a0-a1*x))-x*(1-y)))
+}
+
+a <- c(15,0)
+fx_before <- logL(a)
+fx_next <- logL(a)+1
+i=0
+
+while(fx_before<fx_next){ 
+  i=i+1  
+  fx_before <- logL(a)  
+  d <- grad(a)/sqrt(sum(grad(a)^2))
+  a_out <- a
+  a <- a + s*d 
+  fx_next <- logL(a)
+  s <- 1
+  while(fx_before>fx_next){
+    s <- s/2
+    a <- a_out + s*d 
+    fx_next <- logL(a)
+  } 
+}
+print(paste(a_out[1],a_out[2],i))
+```
+
+Part(d)
+```{r, include=TRUE}
+glm(Failure~Temp, data=o_data, family = "binomial")
+```
