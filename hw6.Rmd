@@ -1,0 +1,108 @@
+---
+output: pdf_document
+geometry: margin=0.75in
+---
+
+```{r set-options, echo=FALSE, cache=FALSE}
+options(width = 400)
+```
+
+```{r}
+
+setwd("g:\\math\\504")
+edge<-read.table("edges.txt")
+options(scipen=999)
+
+G<-matrix(0,max(edge),max(edge))
+n=max(edge)
+
+for( i in 1:max(edge) ) {
+
+	if( length( which(edge[,1]  == i)) == 0 ){ G[i,i]<-1;next}
+	G[i,edge[ which(edge[,1]  == i) ,2]]<-1 }
+
+ G<- apply(G, 2, "/",  rowSums(G)  )
+
+B<-matrix(1/n,n,n)
+p=.15
+
+```
+
+\ 
+
+Not Leveraging sparseness
+
+\ 
+
+```{r}
+nodes<-read.table("nodes.txt")
+
+x<-sample(1:10,max(edge),replace=T)
+system.time(	
+repeat{
+	y<-x
+	x<- ( (1-p) * t(G) %*%x ) + ( rep( (1/n)* p * sum(x),n) ) / 
+		norm(( (1-p) * t(G) %*%x ) + ( rep( (1/n)* p * sum(x),n) ))
+	if( norm(x-y) < 10^-6 ) {break} }
+)
+
+ 
+
+nodes$P<-round(x,5)
+
+ print(head( nodes[with(nodes, order(P,decreasing = T)), ] , 10),row.names=F)
+```
+
+
+\ 
+
+
+Leveraging sparseness
+
+\ 
+
+
+```{r}
+edge<-read.table("edges.txt")
+nodez<-read.table("nodes.txt")
+library(Matrix)
+
+dat<-data.frame(setdiff(edge$V2,edge$V1), setdiff(edge$V2,edge$V1))
+names(dat)<-names(edge)
+edge<-rbind(edge,dat)
+rm(dat)
+
+dat<-data.frame(setdiff(edge$V1,edge$V2), setdiff(edge$V1,edge$V2))
+names(dat)<-names(edge)
+edge<-rbind(edge,dat)
+rm(dat)
+
+
+setdiff(edge$V2,edge$V1)
+setdiff(edge$V1,edge$V2)
+edge$V3<-1
+edge[nrow(edge),3]<-edge[(nrow(edge)-1),3]<-0
+
+A <- sparseMatrix(i = edge$V1, j = edge$V2, x = edge$V3)
+A <- A/rowSums(A)
+n=dim(A)[1]
+p=.15
+ 
+
+ 
+x<-sample(1:10,n,replace=T)
+system.time(	
+repeat{
+	y<-x
+	x<- as.matrix( (1-p) * t(A) %*%x ) + ( rep( (1/n)* p * sum(x),n) ) / 
+		norm(( (1-p) * t(A) %*%x ) + ( rep( (1/n)* p * sum(x),n) ))
+	if( norm(x-y) < 10^-6 ) {break} }
+)
+
+
+nodez$P<-round(x,5)
+print( head( nodez[with(nodez, order(P,decreasing = T)), ] , 10), row.names=F)
+print( head( nodes[with(nodes, order(P,decreasing = T)), ] , 10), row.names=F)
+
+```
+

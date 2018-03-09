@@ -1,15 +1,18 @@
 rm(list = ls())
 
 library(expm)
+ 
 
 mat<-matrix(0,5,5)
 
 for( i in 1:5){
-	y<-sample(1:5,sample(2:5,1))
-	x<-sample(seq(0,1,.1),length(y)) 
+	  y<-sample(1:5,sample(2:5,1))
+	  x<-sample(1:10,length(y)) 
 	  x<-x/sum(x)
-	mat[i,y]<-x	}
+	  mat[i,y]<-x	
+}
 
+mat
 
 rowSums(mat)
  
@@ -19,13 +22,11 @@ rowSums(mat)
 mat%^%100
 p=.15
 m=5
-matB<-matrix(1/n,n,n)
+matB<-matrix(1/m,m,m)
 rowSums( (1-p) * mat ) 
 
 rowSums( ( p) * matB) 
 
-head(setdiff(edge$V2,edge$V1))
- 
 matA<-(1-p) * mat + ( p) * matB
 rowSums( matA)
 xx<-1:5
@@ -37,8 +38,6 @@ repeat{
 
  	if( norm(xx-y) < 10^-16 ) {break} }
 )
-
-rowSums(A)
 
 
 x<-sample(1:10,m,replace=T)
@@ -114,6 +113,7 @@ head( node[with(node, order(V1,decreasing = T)), ] , 20)
 
 
 ###########	177 seconds
+library(Matrix)
 
 nodes<-read.table("nodes.txt")
 rm(B)
@@ -129,9 +129,9 @@ repeat{
 
  
 
-nodes[,1]<-x
-head( nodes[with(nodes, order(V1,decreasing = T)), ] , 10)
-head( node[with(node, order(V1,decreasing = T)), ] , 10)
+nodes$P<-x
+head( nodes[with(nodes, order(P,decreasing = T)), ] , 10)
+head( node[with(node, order(P,decreasing = T)), ] , 10)
 
 
 ###
@@ -173,10 +173,10 @@ repeat{
 )
 
 
-nodez[,1]<-x
-head( nodez[with(nodez, order(V1,decreasing = T)), ] , 10)
-head( nodes[with(nodes, order(V1,decreasing = T)), ] , 10)
-head( node[with(node, order(V1,decreasing = T)), ] , 10)
+nodez$P<-x
+head( nodez[with(nodez, order(P,decreasing = T)), ] , 10)
+head( nodes[with(nodes, order(P,decreasing = T)), ] , 10)
+head( node[with(node, order(P,decreasing = T)), ] , 10)
 
 
 ########################################################################
