@@ -1,0 +1,295 @@
+---
+output: pdf_document
+geometry: margin=.75in
+---
+
+```{r set-options, echo=FALSE, cache=FALSE}
+options(width = 400)
+```
+
+Michael Leibert
+
+Math 504 
+
+Homework 7
+
+
+\ 
+
+\begin{itemize}
+
+\item[2.] In this problem you'll apply power iteration to compute the dominant eigenvector $v$ which has eigenvalue $1$ and satisfies $M^Tv=v$. (REMEMBER, you need to consider $M^T$ not $M$!)  Remember, the $v$ you compute will have to be normalized to sum to 1, rather than the usual normalization of length $1$.  If you normalize $v$ in this way then $v_i$ will represent the probability of being at page $i$ after a long time surfing the web.  If we sort the pages in descending order of their $v_i$ we get the PageRank ordering.
+\end{itemize}
+
+\begin{itemize} \item[ ] \begin{itemize}  \item[(a)] 
+To get your code running and for orientation, build a toy network of $5$ nodes (pages). Make sure that there is a path from each node in the network to every other node.
+ \end{itemize} \end{itemize}
+
+\ 
+
+```{r,echo=F}
+rm(list = ls())
+options(warn=-1)
+suppressMessages(library(expm))
+suppressMessages(library(diagram))
+options(warn=0)
+set.seed(2)
+options(scipen=999)
+setwd("g:\\math\\504")
+```
+
+```{r}
+mat<-matrix(0,5,5)
+
+for( i in 1:5){
+	  y<-sample((1:5)[-i],sample(2:4,1))
+	  x<-sample(1:10,length(y)) 
+	  x<-x/sum(x)
+	  mat[i,y]<-x	
+}
+
+mat;rowSums(mat)
+```
+
+```{r fig1, fig.height = 3.5, fig.width = 5, fig.align = "center" , echo=F}
+ par( mar=c(1,1,1,1) )
+plotmat(mat,pos = c(1,2,2), 
+        lwd = 1, box.lwd = 2, 
+        cex.txt = 0.8, 
+        box.size = 0.1, 
+		    dtext= 100,
+        box.type = "circle", 
+        box.prop = 0.5,
+        box.col = "#a6bddb",
+        self.cex = .0,
+        self.shifty = -.01,
+        self.shiftx = -.13,
+        main = "")
+```
+
+\ 
+
+\begin{itemize} \item[ ] \begin{itemize}  \item[(a)] 
+Using different values of $p$, compute the dominant eigenvector $v$ using power iteration and use \textbf{eigen} to determine the first two eigenvalues. (Remember to tranpose your matrix!)
+ \end{itemize} \end{itemize} 
+ 
+ 
+ \ 
+ 
+ 
+```{r}
+####### We note we can write B as a vector 1/n * p *  sum x
+
+myfunction<-function(matt,p){
+  m=dim(matt)[1]
+  x<-sample(1:10,m,replace=T);i=1
+  x<-   x/sum(x) 
+  tt<-system.time(
+  repeat{
+	  y<-x
+	  i=i+1
+	  x<- ( (1-p) * t(matt) %*%x ) + ( rep( (1/m)* p * sum(x),m) ) / 
+		  norm(( (1-p) * t(matt) %*%x ) + ( rep( (1/m)* p * sum(x),m) ))
+ 	  if( norm(x-y) < 10^-14 ) {break} } )
+    print(t(x))
+  print(tt) 
+  print(paste0("Iterations: ", i)) 
+  
+  G<-( (1-p) * matt  + ( p) * matrix(1/m,m,m) ) 
+  print( Re(eigen(t(G))$vectors[,1]) / Re( sum(eigen(t(G))$vectors[,1])  ) )
+  print(sort( sqrt(Re(eigen((1-p) *  (matt) + p * 1/m )$values )^2+
+   Im(eigen((1-p) *  (matt) + p * 1/m)$values)^2 ) , decreasing = T)[1:2])
+  }
+
+myfunction(mat,.05)
+myfunction(mat,.5)
+myfunction(mat,.95)
+```
+
+
+
+\ 
+
+\begin{itemize} \item[ ] \begin{itemize}  \item[(a)] 
+ Discuss how $p$ affects the distance between $\lambda_1$ and $\lambda_2$ and how this relates to the number of iterations needed for power iteration.   If $\lambda = a + bi$, that is $\lambda$ is complex, then it's size is $\sqrt{a^2 + b^2}$ and you can compare how far this is from $1$.
+ 
+ \ 
+ 
+ We know the power method will converge at a rate \( \displaystyle \left| \cfrac{\lambda_2}{\lambda_1} \right| \), so the smaller $\lambda_2$ is the faster the convergence and less iterations are required. With a lower $p$, $\lambda_2$ has higher values. For example $p=.05$, $\lambda_2 = 0.5680198$ and we see the amount of iterations required was 52. When we set $p=0.5$, $\lambda_2 = 0.2989578$ and the convergence was quicker with only 29 iterations. Lastly, when $p=0.95$ it only took 12 iterations to converge because $\lambda_2 =0.02989578$ which was considerably smaller than $\lambda_1$. For the increasing $p$ the ratio was smaller (smaller numerator), and less iterations were required.
+ 
+ \end{itemize} \end{itemize} 
+ 
+ 
+ \ 
+ 
+  
+
+
+
+\begin{itemize} \item[ ] \begin{itemize}  \item[(b)] 
+ Now consider the Hollins Universtiy network and set $p=.15$.  Compute the dominant eigenvector of $M^T$  using power iteration.  Try to use \textbf{eigen} to compute $v$;  you'll see that eigen doesn't work well here.  Determine the highest rated web page.  
+ \end{itemize} \end{itemize}
+
+
+\ 
+
+
+```{r}
+edge<-read.table("edges.txt")
+node<-read.table("nodes.txt")
+
+G<-matrix(0,max(edge),max(edge))
+n=max(edge)
+
+#pages without links
+length( setdiff(edge[,2],edge[,1]) ); head(setdiff(edge[,2],edge[,1]))
+
+#G as a zero matrix, by row replace 0 entry with 1 if there is an edge
+for( i in 1:max(edge) ) {
+	if( length( which(edge[,1]  == i)) == 0 ){ G[i,i]<-1;next}
+	G[i,edge[ which(edge[,1]  == i) ,2]]<-1 }
+	
+#stochastic matrix row must sum to 1
+G<- apply(G, 2, "/",  rowSums(G)  )
+ all(round(rowSums(G),15) == 1) #yes
+
+######## 
+
+ 
+myfunction<-function(matt,p){
+  m=dim(matt)[1]
+  x<-sample(1:10,m,replace=T);i=1
+  x<-  x/sum(x)  
+  tt<-system.time(
+  repeat{
+	  y<-x
+	  i=i+1
+	  x<-( (1-p) * t(matt) %*% x ) + ( rep( (1/m)* p * sum(x),m) ) / 
+		  norm( ( (1-p) * t(matt) %*% x ) + ( rep( (1/m)* p * sum(x),m) ) )
+ 	  if( norm(x-y) < 10^-14 ) {break} } )
+    x<<-x
+  print(tt) 
+  print(paste0("Iterations: ", i)) 
+  #remove the following lines, eigen freezes R with a larger matrix
+  #G<-( (1-p) * matt  + ( p) * matrix(1/m,m,m) ) 
+  #print( Re(eigen(t(G))$vectors[,1]) / Re( sum(eigen(t(G))$vectors[,1])  ) )
+  }
+
+myfunction(G,.15)
+node[,1]<-round(x,6)
+head( node[with(node, order(V1,decreasing = T)), ] , 10);sum(node[,1])
+
+
+
+### Let us use sparsity to speed things up
+
+
+
+library(Matrix);rm(x)
+edge<-read.table("edges.txt")
+nodez<-read.table("nodes.txt")
+
+#Adding Edges
+zeroes<-setdiff(edge$V1,edge$V2)
+dat<-data.frame(setdiff(edge$V2,edge$V1), setdiff(edge$V2,edge$V1))
+names(dat)<-names(edge)
+edge<-rbind(edge,dat)
+dat<-data.frame(setdiff(edge$V1,edge$V2), setdiff(edge$V1,edge$V2))
+names(dat)<-names(edge)
+edge<-rbind(edge,dat);rm(dat)
+
+
+setdiff(edge$V2,edge$V1)
+setdiff(edge$V1,edge$V2)
+edge$V3<-1
+edge[zeroes,3]<-0
+tail(edge)
+
+A <- sparseMatrix(i = edge$V1, j = edge$V2, x = edge$V3)
+A <- A/rowSums(A)
+ all(round(rowSums(A),14) == 1)
+
+myfunction(A,.15)
+
+nodez[,1]<-round( as.numeric( x ) , 6 ) #much faster
+head( nodez[with(nodez, order(V1,decreasing = T)), ] , 10);sum(nodez[,1])
+ 
+```
+
+ 
+
+\
+
+
+\ 
+
+\begin{itemize}
+
+\item[(3)] The network has about 300,000 nodes and about 1,000,000 edges.   Look at the Notre Dame file to see the data format.   Names have been stripped and the nodes in the network are simply numbered.  Each row in the datafile contains two numbers, corresponding to a start node and end node connected by a directed edge.  You can load the data into R using \textbf{read.table} as usual.  
+
+As we discussed in class, doing a single iteration of power method is $O(n^2)$.  For the Hollins University dataset this is not too bad, but for the Notre Dame network this would be very slow and, besides, we can't store the full $A$ matrix..   However, the adjacency matrix (i.e. $A$) of most networks will be sparse, meaning most entries will be zero.   Both in terms of storage and matrix multiplication, great savings can be achieved by not considering $0$ entries.  This comes down to representing the matrix $A$ in a data structure different than the usual $n \times n$ grid and exploiting this data structure to reduce the $O(n^2)$ to $O(n)$. We will not consider the specific data structures used to store sparse matrices, but instead simply use sparse matrices through R packages.  The \textbf{Matrix} package can handle sparse matrices.  A nice, short writeup about R packages dealing with sparse matrices is given here
+
+To get a sparse matrix, use the \verb+as_adjacency_matrix+ function from igraph with the \textbf{sparse} flag set to TRUE.
+ \end{itemize}
+
+
+\ 
+
+
+
+\begin{itemize} \item[ ] \begin{itemize}  \item[(a)] 
+ Try to create an $A$ matrix with and without sparsity for this graph.  You will see that without sparsity, R will run out of memory.
+ \end{itemize} \end{itemize}
+
+
+\ 
+
+```{r}
+edge<-read.table("web-NotreDame.txt")
+
+#A<-matrix(0,max(edge),max(edge)) 
+# Error: cannot allocate vector of size 790.5 Gb Execution halted
+#This would be a 0 matrix with the appropriate dimensions
+
+#Adding Edges
+dat<-data.frame(setdiff(edge$V2,edge$V1), setdiff(edge$V2,edge$V1))
+names(dat)<-names(edge)
+edge<-rbind(edge,dat)
+rm(dat);rm(x)
+
+setdiff(edge$V2,edge$V1); setdiff(edge$V1,edge$V2)
+
+#sparseMatrix doesn't like zeroes
+edge$V1<-edge$V1+1; edge$V2<-edge$V2+1
+edge$V3<-1
+
+#sparse matrix with 1's that designate edges
+A <- sparseMatrix(i = edge$V1, j = edge$V2, x = edge$V3)
+#stochastic matrix row sum = 1
+A <- A/rowSums(A)
+all(round(rowSums(A),12) == 1)
+max(edge);dim(A)
+```
+
+\ 
+
+
+
+\begin{itemize} \item[ ] \begin{itemize}  \item[(b)] 
+Find the dominant eigenvector of $M^T$ and determine the most popular pages.  Use $p=.15$.
+\end{itemize} \end{itemize}
+
+
+\ 
+
+```{r}
+myfunction(A,.15)
+dat<- ( data.frame( as.numeric(x) ,  0:(length(x)-1)) );names(dat)<-c("p","page")
+print( head( dat[with(dat, order(p,decreasing = T)), ] , 10) , row.names = F);sum(as.numeric(x))
+
+```
+
+
+ 
+ 
+

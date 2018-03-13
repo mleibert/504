@@ -1,0 +1,101 @@
+"senator" "state" "party"
+"Arlen Spector" "PA" R
+"Barack H. Obama" "IL" D
+"Barbara A. Mikulski" "MD" D
+"Barbara Boxer" "CA" D
+"Bill Nelson" "FL" D
+"Blanche L. Lincoln" "AR" R
+"Byron L. Dorgan" "ND" D
+"C. Saxby Chambliss" "GA" R
+"Carl Levin" "MI" D
+"Charles E. 'Chuck' Grassley" "IA" R
+"Charles E. 'Chuck' Schumer" "NY" D
+"Charles T. 'Chuck' Hagel" "NE" R
+"Christopher J. Dodd" "CT" D
+"Christopher S. Kit Bond" "MO" R
+"Conrad R. Burns" "MT" R
+"Craig Thomas" "WY" R
+"Daniel K. Inouye" "HI" D
+"Daniel Kahikina Akaka" "HI" D
+"David B. Vitter" "LA" R
+"Debbie Ann Stabenow" "MI" D
+"Dianne Feinstein" "CA" D
+"E. Benjamin 'Ben' Nelson" "NE" D
+"Edward M. 'Ted' Kennedy" "MA" D
+"Elizabeth H. Dole" "NC" R
+"Evan Bayh" "IN" D
+"Frank R. Lautenberg" "NJ" D
+"George Felix Allen" "VA" R
+"George V. Voinovich" "OH" R
+"Gordon Harold Smith" "OR" R
+"Harry M. Reid" "NV" D
+"Herbert H. 'Herb' Kohl" "WI" D
+"Hillary Rodham Clinton" "NY" D
+"James M. 'Jim' Inhofe" "OK" R
+"James M. 'Jim' Talent" "MO" R
+"James Merrill 'Jim' Jeffords" "VT" I
+"Jeff Bingaman" "NM" D
+"Jefferson B. 'Jeff' Sessions III" "AL" R
+"Jim Bunning" "KY" R
+"Jim W. DeMint" "SC" R
+"John Cornyn" "TX" R
+"John D. 'Jay' Rockefeller IV" "WV" D
+"John E. Sununu" "NH" R
+"John Eric Ensign" "NV" R
+"John F. 'Jack' Reed" "RI" D
+"John Forbes Kerry" "MA" D
+"John H. 'Johnny' Isakson" "GA" R
+"John R. Thune" "SD" R
+"John S. McCain" "AZ" R
+"John W. Warner" "VA" R
+"Jon Kyl" "AZ" R
+"Joseph I. Lieberman" "CT" D
+"Joseph R. Biden Jr." "DE" D
+"Judd A. Gregg" "NH" R
+"Kay Bailey Hutchison" "TX" R
+"Ken Salazar" "CO" D
+"Kent Conrad" "ND" D
+"Lamar Alexander" "TN" R
+"Larry E. Craig" "ID" R
+"Lincoln D. Chafee" "RI" R
+"Lindsey O. Graham" "SC" R
+"Lisa A. Murkowski" "AK" R
+"Maria Cantwell" "WA" D
+"Mark Dayton" "MN" D
+"Mark Pryor" "AR" D
+"Mary L. Landrieu" "LA" D
+"Max S. Baucus" "MT" D
+"Mel Martinez" "FL" R
+"Michael B. Enzi" "WY" R
+"Michael D. 'Mike' Crapo" "ID" R
+"Michael 'Mike' DeWine" "OH" R
+"Mitch McConnell" "KY" R
+"Norm Coleman" "MN" R
+"Olympia J. Snowe" "ME" R
+"Orrin G. Hatch" "UT" R
+"Pat Roberts" "KS" R
+"Patrick J. Leahy" "VT" D
+"Patty Murray" "WA" D
+"Paul S. Sarbanes" "MD" D
+"Pete V. Domenici" "NM" R
+"Richard C. Shelby" "AL" R
+"Richard G. Lugar" "IN" D
+"Richard J. 'Dick' Durbin" "IL" D
+"Richard J. 'Rick' Santorum" "PA" R
+"Richard M. Burr" "NC" R
+"Robert C. Byrd" "WV" D
+"Robert F. Bennett" "UT" R
+"Robert Menendez" "NJ" D
+"Ron Wyden" "OR" D
+"Russell D. Feingold" "WI" D
+"Samuel D. 'Sam' Brownback" "KS" R
+"Susan M. Collins" "ME" R
+"Ted Stevens" "AK" R
+"Thad Cochran" "MS" R
+"Thomas Allen 'Tom' Coburn" "OK" R
+"Thomas Richard Carper" "DE" D
+"Thomas 'Tom' Harkin" "IA" D
+"Tim P. Johnson" "SD" R
+"Trent Lott" "MS" R
+"Wayne A. Allard" "CO" R
+"William H. 'Bill' Frist" "TN" R
