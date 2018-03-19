@@ -1,0 +1,25 @@
+---
+title: ''
+output: pdf_document
+---
+
+```{r}
+rm(list = ls())
+df <- read.table("non_linear_1.txt", header=T)
+head(df)
+source("nonlinear.R")
+b<-c(96, .009, 103, 106, 1000, 72, 151, 1000)
+
+rm(H);options(scipen= 999)
+H<-hessian.L(df$x, df$y, b) 
+
+#four negative eigenvalues
+eigen(H)$values
+
+ A<-H+ diag(dim(H)[1])*(-min(eigen(H)$values )+1) 
+
+#no negative eigenvalues 
+eigen(A)$values
+
+```
+

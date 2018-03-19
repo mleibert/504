@@ -27,8 +27,7 @@ M[1:5,1:5]
 99/100*cov(DM)[1:5,1:5] 
 
 #############
-#http://college.cengage.com/mathematics/larson/elementary_linear/5e/students/ch08-10/chap_10_3.pdf
- 
+
 x<-sample(1:N,dim(M)[1],replace=T)
  x<-x/sum(x)
 repeat{
@@ -37,17 +36,12 @@ repeat{
  	if( norm(x-y) < 10^-10 ) {break} }
 x
 
-head(unitVector(x))
+
 head(x/sqrt(sum(x^2)))
 -head(eigen(M)$vectors[,1])
 
 
 (eigen(M)$vectors[,1])
-
-unitVector <- function(v) {
-  vlen <- sqrt(sum(v^2))
-  return ( v / vlen)
-}
 
 
 

@@ -175,7 +175,7 @@ myfunction<-function(matt,p){
   #print( Re(eigen(t(G))$vectors[,1]) / Re( sum(eigen(t(G))$vectors[,1])  ) )
   }
 
-myfunction(G,.15)
+#myfunction(G,.15)
 node[,1]<-round(x,6)
 head( node[with(node, order(V1,decreasing = T)), ] , 10);sum(node[,1])
 
