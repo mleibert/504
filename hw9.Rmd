@@ -1,0 +1,25 @@
+---
+title: ''
+output: pdf_document
+---
+\begin{enumerate} 
+
+
+\item This problem provides an example of how interpolation can be used.  The attached spreadsheet provides life expectancy data for the US population.   The second column gives the probability of death for the given age.  So, for example, the probability that a person between the ages of $20$ and $21$ dies is $0.000894$.    
+
+Suppose a $40$ year old decides to buy life insurance.  The $40$ year old will make monthly payments of $\$200$
+%%$ make the green go away!
+every month until death.   In this problem we will consider the worth of these payments, a quantity of interest to the insurance company.  The payoff upon death will not be considered in this problem.   If we assume (continuous time) interest rates of $5\%$ and let $m$ be the number of months past age $40$ that the person lives, then the present value of the payments (how much future payments are worth in today's dollars) is,
+\begin{equation}  \label{PV}
+PV = \sum_{i=1}^m 200 e^{-.05 i/12}
+\end{equation}
+Our goal is to determine the average of PV, in other words $E[\text{PV}]$.  For the insurance company, this is one way to measure the revenue brought in by the policy.   The difficulty is that our data is yearly, while payments are made monthly and people do not always die at the beginning of the month. 
+\begin{enumerate}
+\item Let $L(t)$ be the probability the 40 year old lives past the age $40+t$ where $t$ is any positive real number.  Estimate $L(t)$ by first considering $t=0,1,2,\dots$.   These values of $L(t)$ can be computed using the spreadsheet data.  (For example, for the $40$ year old to live to $42$, they must not die between the ages $40-41$ and $41-42$).  For other $t$ values, interpolate using a cubic spline.  In R you can use the \textbf{spline} and \textbf{splinefun} commands to construct cubic splines, see the help documentation.   Graph the interpolating cubic spline of $L(t)$ and include the datapoints, i.e. $L(t)$ for $t=0,1,\dots$.. 
+\newcommand{\DL}{\text{DL}}
+\item Explain why the expected (average) present value of the payments is given by
+\begin{equation}  
+E[PV] = \sum_{i=1}^\infty 200 L(i/12) e^{-.05 i/12}
+\end{equation}
+In practice we can't sum to $\infty$, choose an appropriate cutoff and calculate $E[\text{PV}]$. 
+\end{enumerate}
