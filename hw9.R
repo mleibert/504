@@ -61,23 +61,11 @@ cumsum(HALP)
 a1<-sample(3:8,1);a2<-sample(3:8,1)
 A<-matrix(sample(0:9,a1*a2,replace=T),a1,a2)
 A
-qr(A)
+qr.Q( qr(A) )
 
+#create linear dependency
 A[,2]<-A[,1]
-GramSchmidt(A)
  
-
-AA<-A[, qr(A)$pivot[seq_len(qr(A)$rank)]]
-
-
-
-Q <- qr.Q( qr(A) )
-
-t( Q )%*% ( Q)
-t(Q[,1]) %*%Q[,2]
-
-#https://stackoverflow.com/questions/14943422/r-independent-columns-in-matrix
-
 GramSchmidt<-function(A){
 	
 	O<-A
@@ -102,8 +90,11 @@ GramSchmidt<-function(A){
 	
 	print("Our GS matrix:");print(Q)
 	print("R's normalized matrix:");print(QQ)
-	all( (abs(round(Q,14)) == abs(round(QQ,14))) == T)
+	#all( (abs(round(Q,14)) == abs(round(QQ,14))) == T)
 	}
+
+GramSchmidt(A)
+
 
 
 #A<-O
