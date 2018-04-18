@@ -12,25 +12,36 @@ points(nn$x2,nn$y, col="blue",pch=1)
 
 max(nn$y)
 
-X1.fit<-glm(y~x1 ,data=nn,family=binomial())
+X1.fit<-glm(y~x1+x2 ,data=nn,family=binomial())
 X2.fit<-glm(y~x2 ,data=nn,family=binomial())
 
 A<-as.numeric(c(coef(X1.fit),	coef(X2.fit)))
  
-T1<-as.numeric(c(coef(glm(y~x1 ,data=nn,family=binomial())),
-	coef(glm(y~x1 ,data=nn,family=binomial()))))
-
- 
-
-newtonraph(c(0,0),nn$x1,nn$y)
-
-1/(1+exp(-A[1]-A[2]*nn$x1))
-
 Z1<-as.vector( predict(X1.fit, type="response") )
 Z2<-as.vector( predict(X2.fit, type="response") )
 
+Z1.fit<-glm(nn$y~Z1 ,  family=binomial())
+Z2.fit<-glm(nn$y~Z2 , family=binomial())
+T1<-as.vector( predict(Z1.fit, type="response") )
+T2<-as.vector( predict(Z2.fit, type="response") )
+
+Y1<-exp(T1) / ( exp(T1) + exp(T2) )
+Y2<-exp(T2) / ( exp(T1) + exp(T2) )
+
+
+
+X<-as.matrix(nn[,-3])
+X
+
+sigmoid<-function(a,X){ 
+	(1+exp(-a[1]-	apply(X,1, function(x)  t(a[-1])%*%x )	))^(-1)}
+
+a<-c( 0.2447 ,      0.0186     ,  0.2031)
+ all( round(sigmoid(a,X) -  predict(X1.fit, type="response"),4)==0)
+
 
 #
+newtonraph(c(0,0),nn$x1,nn$y)
 
 newtonraph<-function(a,x,y){
 	i=0
