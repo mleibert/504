@@ -7,16 +7,61 @@ NASA<-read.table("o_ring_data.txt",header=T)
 
 nn<-read.table("nn.txt",header=T)
 
-plot(nn$x1,nn$y ,col="red",pch=0)
-points(nn$x2,nn$y, col="blue",pch=1)
+#plot(nn$x1,nn$y ,col="red",pch=0)
+#points(nn$x2,nn$y, col="blue",pch=1)
 
-max(nn$y)
+X<-as.matrix(nn[,-3])
+X
 
-X1.fit<-glm(y~x1+x2 ,data=nn,family=binomial())
-X2.fit<-glm(y~x2 ,data=nn,family=binomial())
+sigmoid<-function(a,X){ 
+	(1+exp(-a[1]-	apply(X,1, function(x)  t(a[-1])%*%x )	))^(-1)}
 
-A<-as.numeric(c(coef(X1.fit),	coef(X2.fit)))
- 
+#Generate some temp alpha parameters
+l.fit<-glm(y~x1+x2 ,data=nn,family=binomial())
+p.fit<-glm(y~x1+x2 ,data=nn,family=binomial(link=probit))
+ll.fit<-glm(y~x2+x1 ,data=nn,family=binomial(link=cloglog))
+cll.fit<-glm(y~x1+x2 ,data=nn,family=binomial(link=cauchit))
+
+A<-cbind(coef(l.fit),coef(p.fit),coef(ll.fit),coef(cll.fit))
+
+
+#all( round(sigmoid(A[1],X) -  predict(l.fit, type="response"),15)==0)
+
+Z<-apply(A,2, function(x) sigmoid(x,X))
+
+
+#Generate some temp beta parameters
+l.fit<-glm(y~x1+x2 ,data=nn,family=binomial())
+p.fit<-glm(y~x1+x2 ,data=nn,family=binomial(link=probit))
+ll.fit<-glm(y~x2+x1 ,data=nn,family=binomial(link=cloglog))
+cll.fit<-glm(y~x1+x2 ,data=nn,family=binomial(link=cauchit))
+
+A<-cbind(coef(l.fit),coef(p.fit),coef(ll.fit),coef(cll.fit))
+
+
+#all( round(sigmoid(A[1],X) -  predict(l.fit, type="response"),15)==0)
+
+Z<-apply(A,2, function(x) sigmoid(x,X))
+
+
+DATz<-as.data.frame(cbind(Z,nn$y))
+lz.fit<-glm(V5~. ,data=DATz,family=binomial())
+pz.fit<-glm(V5~. ,data=DATz,family=binomial(link=cloglog))
+
+B<-cbind(coef(lz.fit),coef(pz.fit) )
+
+T<-apply(B,2, function(x) sigmoid(x,Z))
+Y<- apply(T,2, function(x) exp(x))
+Y<-Y/rowSums(Y)
+
+
+
+
+#https://www.youtube.com/watch?v=NjWKeL25ows
+
+
+
+
 Z1<-as.vector( predict(X1.fit, type="response") )
 Z2<-as.vector( predict(X2.fit, type="response") )
 
@@ -28,19 +73,26 @@ T2<-as.vector( predict(Z2.fit, type="response") )
 Y1<-exp(T1) / ( exp(T1) + exp(T2) )
 Y2<-exp(T2) / ( exp(T1) + exp(T2) )
 
+ 
 
 
-X<-as.matrix(nn[,-3])
-X
+#############
 
-sigmoid<-function(a,X){ 
-	(1+exp(-a[1]-	apply(X,1, function(x)  t(a[-1])%*%x )	))^(-1)}
+bank<-read.table("G:\\math\\661\\bank_loan.txt",header=T)
+data.frame(colnames(bank),1:ncol(bank))
+bank<-bank[,c(3,4,6,7,9)]
 
-a<-c( 0.2447 ,      0.0186     ,  0.2031)
- all( round(sigmoid(a,X) -  predict(X1.fit, type="response"),4)==0)
+bank<-bank[1:700,]
+set.seed(1)
+a<-sample(1:700,600)
 
+banktest<-bank[-a,]
+bank<-bank[a,]
 
+fit.lasso = glm(default ~ employ+address+debtinc+creddebt,
+	family="binomial", data=past)
 #
+
 newtonraph(c(0,0),nn$x1,nn$y)
 
 newtonraph<-function(a,x,y){
