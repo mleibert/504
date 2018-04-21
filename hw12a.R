@@ -1,19 +1,21 @@
 rm(list = ls())
  setwd("G:\\math\\504")
 options(scipen=999)
- require("ggplot2")
+ 
+NASA<-read.table("o_ring_data.txt",header=T)
 
-nn<-read.table("nn.txt",header=T)	
-head(nn)
 
-p <- ggplot(nn, aes(x1, x2)) + geom_point(aes(colour = factor(y)))
-p 
+nn<-read.table("nn.txt",header=T)
+
+#plot(nn$x1,nn$y ,col="red",pch=0)
+#points(nn$x2,nn$y, col="blue",pch=1)
 
 X<-as.matrix(nn[,-3])
 X
 
+#same as predict function
 sigmoid<-function(a,X){ 
-	(1+exp(-a[1]-	apply(X,1, function(x)  t(a[-1])%*%x )	))^(-1)}
+	(1+exp(-a[1]- apply(X,1, function(x)  t(a[-1])%*%x )	))^(-1)}
 
 #Generate some temp alpha parameters
 l.fit<-glm(y~x1+x2 ,data=nn,family=binomial())
@@ -21,24 +23,29 @@ p.fit<-glm(y~x1+x2 ,data=nn,family=binomial(link=probit))
 ll.fit<-glm(y~x2+x1 ,data=nn,family=binomial(link=cloglog))
 cll.fit<-glm(y~x1+x2 ,data=nn,family=binomial(link=cauchit))
 
+#Capturing the A's for eta^0 for the gradient ascent
 A<-cbind(coef(l.fit),coef(p.fit),coef(ll.fit),coef(cll.fit))
 
 
-#all( round(sigmoid(A[1],X) -  predict(l.fit, type="response"),15)==0)
+#all( round(sigmoid(A[2],X) -  predict(p.fit, type="response"),15)==0)
 
-Z<-apply(A,2, function(x) sigmoid(x,X))
-
-
-
+#Z_j = sigma(x'A) [ x transpose A ] j=1,2,3,4
+Z<-apply(A ,2, function(q) sigmoid(q,X))
 
 
+#Generate some temp beta parameters
 DATz<-as.data.frame(cbind(Z,nn$y))
 lz.fit<-glm(V5~. ,data=DATz,family=binomial())
 pz.fit<-glm(V5~. ,data=DATz,family=binomial(link=cloglog))
 
+
+#Capturing the B's for eta^0 for the gradient ascent
 B<-cbind(coef(lz.fit),coef(pz.fit) )
 
+#all( round(sigmoid(B[1],X) -  predict(lz.fit, type="response"),15)==0)
+
 T<-apply(B,2, function(x) sigmoid(x,Z))
+
 Y<- apply(T,2, function(x) exp(x))
 Y<-Y/rowSums(Y)
 
@@ -47,26 +54,21 @@ Y<-Y/rowSums(Y)
 
 #https://www.youtube.com/watch?v=NjWKeL25ows
 
-eta<-runif(22,-1, 1)
-
-NN(X,c(as.vector(A),as.vector(B)),4)
 
 
 
-sum( (1-y)*log(Y[,1]) + ( y)*log(Y[,2])  )
+Z1<-as.vector( predict(X1.fit, type="response") )
+Z2<-as.vector( predict(X2.fit, type="response") )
 
+Z1.fit<-glm(nn$y~Z1 ,  family=binomial())
+Z2.fit<-glm(nn$y~Z2 , family=binomial())
+T1<-as.vector( predict(Z1.fit, type="response") )
+T2<-as.vector( predict(Z2.fit, type="response") )
 
-gradF<-funtion(eta,)
-for( i in 1:22){
+Y1<-exp(T1) / ( exp(T1) + exp(T2) )
+Y2<-exp(T2) / ( exp(T1) + exp(T2) )
 
-	ETA<-eta
-	ETA[i]<-eta[i]+(10^-6)
-
-	Yp<-NN(x,ETA,4)
-	gradF[i]<-(sum( (1-y)*log(Yp[,1]) + ( y)*log(Yp[,2])  ) - 
-		sum( (1-y)*log(Y[,1]) + ( y)*log(Y[,2])  )  ) / (10^-6)
-}
-
+ 
 
 
 #############
