@@ -1,0 +1,510 @@
+---
+title: ''
+output: pdf_document
+---
+
+Michael Leibert
+
+Math 504 
+
+Homework 12
+
+
+\ 
+
+\begin{itemize} 
+
+
+\item[2.] In this problem you will implement a neural network to solve a classification problem.   To keep things simple - since time is limited - the data will consist of covariates $x^{(i)} \in \mathbb{R}^2$ and a response $y_i \in \{0,1\}$ for $i=1,2,\dots,N$ (notice $y$ takes on only two possible values).  The classification problem involves fitting the model $y \sim f(x)$ over functions $f(x)$ that can be parameterized by our neural net, which is described below.   The attached file \verb+nn.txt+ contains the samples.  Each sample, corresponding to a row in the file, gives the three values $(x^{(i)}_1, x^{(i)}_2, y_i)$.  
+\end{itemize} 
+
+
+\ 
+
+ \begin{itemize} \item[(a)] Visualize the dataset by plotting it with different colors for the two classes of $y$.  
+\end{itemize} 
+ 
+\ 
+
+
+```{r}
+setwd("G:\\math\\504");require(ggplot2,quietly=T)
+nn<-read.table("nn.txt",header=T)	
+p <- ggplot(nn, aes(x1, x2)) + geom_point(aes(colour = factor(y))) +   
+  theme(legend.position="bottom");p 
+```
+
+
+\ 
+
+ \begin{itemize} \item[(b)]  Let $\eta$ be the parameters of the neural net (i.e. all the $\alpha$'s and $\beta$'s).  What is the dimension of $\eta$ in terms of $m$?  
+ 
+ \ 
+ 
+ \begin{itemize} \item[ ] \hfil \(\displaystyle \dim\left(\eta\right) = m\cdot(2+3)+2 \)
+
+
+\end{itemize} 
+ \end{itemize} 
+
+\ 
+
+
+
+ \begin{itemize} \item[(c)] Write a function $NN(x, \eta, m)$ which takes a sample $x \in \mathbb{R}^2$ and a choice for $\eta$ and returns the values of $Y_1$ and $Y_2$.  (Hint:  It may be helpful to write functions such as \verb+get_alpha(eta, i)+, which given $\eta$ and $i$ returns $\alpha^{(i)}$,  and \verb+get_alpha_0(eta, i)+, which given $\eta$ and $i$  returns $\alpha^{(i)}_0$.  Using such functions will greatly simplify your code.)
+  
+ 
+ \ 
+ 
+
+ \end{itemize} 
+
+```{r}
+
+sigmoid<-function(a,w){	(1+exp(-a[1]-apply(w,1, function(w)  t(a[-1])%*%w )	))^(-1)}
+
+NN<-function(x,eta,m){
+	
+	X<-as.matrix(x)
+
+	Alpha<-matrix(eta[1:prod( c(dim(X)[2] + 1, m ) )], dim(X)[2] + 1 , m)
+	Z<-apply(Alpha,2, function(v) sigmoid(v,X))
+
+	Beta<-matrix( eta[(prod(dim(Alpha))+1):length(eta) ], dim(Z)[2]+1, 2)
+	 
+	T<-apply(Beta,2, function(v) sigmoid(v,Z))
+	Y<- apply(T,2, function(x) exp(x))
+	Y<-Y/rowSums(Y)
+	return(Y)
+}
+
+head( NN(nn[,-3],  runif(22,-1,1) , 4) )
+```
+
+
+
+  
+
+\ 
+
+ \begin{itemize} \item[(d)] Explain why the log likelihood function $\log L(\eta)$ for the neural net  is given by
+\begin{equation}
+\log L(\eta) = \sum_{i=1}^N (1-y_i) \log(Y_1) + y_i \log(Y_2).
+\end{equation}
+(In class, when I wrote the log likelihood, I forgot the log on the $Y_1$ and $Y_2$!)   Write a function that computes $\log L(\eta)$ (you will need to pass the data to the function).  Write a function that uses finite difference to compute the gradient of $\log L(\eta)$.
+  
+ 
+ \ 
+ 
+ \begin{itemize} \item[ ]  EXPLAIN
+
+\ 
+
+\end{itemize} 
+ \end{itemize} 
+
+```{r}
+gradL<-function(eta,x,y,m ){
+		
+	y<-as.matrix(y)
+	dimeta<-m*(dim(x)[2]+1)+2*(1+m)
+	gradf<-rep(NA,dimeta)
+
+	Y<-NN(x,eta,m)
+	ETA<-eta
+
+	logl<-sum( (1-y)*log(Y[,1]) + ( y)*log(Y[,2])  )
+	for( i in 1:dimeta){
+		
+		ETA[i]<-eta[i]+(10^-6)
+			
+		Yp<-NN(x,ETA,m)
+		
+		gradf[i]<-(sum( (1-y)*log(Yp[,1]) + ( y)*log(Yp[,2])  ) - logl  ) / (10^-6)	}
+	
+	return(gradf)
+}
+
+gradL(runif(22,-1,1),nn[,-3],nn[,3],4)
+```
+
+
+
+\ 
+
+ \begin{itemize} \item[(e)] Set $m=4$ and train your neural net by maximizing the $\log L(\eta)$ using steepest ascent.  (It took me roughly $45$ minutes of run time to get a good fit,  roughly $3000$ iterations.  Your results may vary from this depending on implemenation and hardware.)
+
+
+ 
+ \ 
+ 
+ \end{itemize} 
+
+
+```{r echo=F}
+Alpha<-c(-3.7748365, 2.1178734, 0.3139542, -5.5415006, -.5958018, 5.8168459, 11.0561352, 0.2074085, 14.0207743, 25.2868297, 16.0428078, 3.8300725, 15.9792114, 23.4815794, 23.2210775, -13.5097426, -12.2073593, -18.6510642, -27.0546378, -27.4979835, 15.2350215, 14.7081561)
+source("multiplot.R")
+```
+
+```{r eval=F}
+logL<-function(x,y,eta,m){
+	Y<-NN(x,eta,m)
+	return( sum( (1-y)*log(Y[,1]) + ( y)*log(Y[,2])  ) )	}
+
+j=1;current_grad <- gradL(Alpha , X , nn[,3] , 4 ) 
+
+for(i in j:(3000)) {
+
+	d <- current_grad/Norm(current_grad)	
+	
+	s <- 1 
+	current_logL <- logL(X,nn[,3],Alpha,4)
+
+	while(logL(X,nn[,3],Alpha+s*d,4)  < current_logL)
+      	 s <- s/2 
+
+  Alpha <- Alpha + s*d
+  current_grad <-  gradL(Alpha , X , nn[,3] , 4 ) }  
+
+```
+
+
+```{r}
+#Alpha is eta (alphas and betas)
+Alpha
+```
+
+\ 
+
+\begin{itemize} \item[(f)] Remember that a classifier in this case is a function $F(x) : \mathbb{R}^2 \to \{0, 1\}$, where $x \in \mathbb{R}^2$.   Once you choose $\eta$ by by computing the maximum likelihood in (e), choose a cutoff $p \in [0,1]$.  Set $F$ by
+\begin{equation}
+F(x) = \big\{
+\begin{array}{cc}
+0 & \text{if } Y_1(x, \eta) < p \\ 
+1 & \text{if } Y_1(x, \eta) \ge p
+\end{array}
+\end{equation} 
+Try different value of $p$ and for each $p$, visualize your classifier.  You can do this in any way you like, but here is one way.   Generate many points in $\mathbb{R}^2$, determine the predicted class of each using your classifier, and then plot as in part (a).  You can generate random coordinates within $[-2, 2]$, which is roughly where all the data points lie, using
+\begin{verbatim}
+x1 <- 4*runif(10000) - 2
+x2 <- 4*runif(10000) - 2
+\end{verbatim}
+\verb+runif(10000)+ generates $10000$ numbers uniformly distributed on $[0,1]$.  
+
+ \ 
+ 
+\end{itemize} 
+
+
+```{r}
+x1<-matrix(4*runif(20000 )-2, 10000,2)
+test<-as.data.frame((NN(x1,Alpha ,4)))
+test<-cbind(test,x1)
+test$y1<- ifelse( test[,1]>.5 , 0,1)
+test$y2<- ifelse( test[,1]>.7 , 0,1)
+test$y3<- ifelse( test[,1]>.3 , 0,1)
+names(test)[3:4]<-c("x1","x2")
+
+p1 <- ggplot(test, aes(x1, x2)) + geom_point(aes(colour = factor(y1))) +
+  ylim(-2.5, 2.5) + xlim( -2.5,2.5 ) + ggtitle("p = 0.5") 
+p2 <- ggplot(test, aes(x1, x2)) + geom_point(aes(colour = factor(y2))) +
+  ylim(-2.5, 2.5) + xlim( -2.5,2.5 ) + ggtitle("p = 0.7") 
+p3 <- ggplot(test, aes(x1, x2)) + geom_point(aes(colour = factor(y3))) +
+  ylim(-2.5, 2.5) + xlim( -2.5,2.5 ) + ggtitle("p = 0.3") 
+p<- p + ggtitle("original data") 
+multiplot(p1, p2, p3,p,  cols=2)
+
+```
+
+
+
+\ 
+
+\begin{itemize} \item[]
+\begin{itemize} \item[(g)] Now repeat (e) and (f), but in your log likelihood, include a penalty term of the form,
+
+\ 
+
+
+\begin{equation}
+\rho \left(\sum_{i=1}^m \|\alpha^{(i)}\|^2 + \sum_{j=1}^2 \|\beta^{(j)}\|^2\right).
+\end{equation}
+
+\ 
+
+
+Given that we are maximizing, explain why you should subtract the penalty term rather than add it onto the log-likelihood in (d).
+Train your net with several values of $\rho$, visualize the resulting classifier for differnt $p$, and compare your results.
+
+
+ \ 
+ 
+ \begin{itemize} \item[] EXPLAIN
+ 
+\end{itemize} 
+\end{itemize} 
+\end{itemize} 
+
+
+\ 
+
+```{r}
+PlogL<-function(x,y,eta,m,rho){
+	X<-as.matrix(x)
+	ALPHA<-matrix(eta[1:prod( c(dim(X)[2] + 1, m ) )], dim(X)[2] + 1 , m)
+ 	Beta<-matrix(eta[(prod( c(dim(X)[2] + 1, m ) )+1):length(eta)],
+		m+1,2)
+	ALPHA<-as.vector(t(ALPHA[-1 ,])) ;Beta<-as.vector(t(Beta[-1 ,]))
+
+	Y<-NN(x,eta,m)
+	return( sum( (1-y)*log(Y[,1]) + ( y)*log(Y[,2])  ) -
+		rho*(sum(Norm(ALPHA)^2)+sum(Norm(Beta)^2) )
+	)	}
+```
+
+\ 
+
+$\rho = 0.1$
+
+\ 
+
+```{r eval=F}
+j=1;current_grad <- gradL(Alpha , X , nn[,3] , 4 ) 
+system.time(
+ for(i in j:(2000)) {
+    #iter <- iter + 1
+	
+	d <- current_grad/Norm(current_grad)	
+	
+	s <- 1 
+	#current_logL <- logL(X,nn[,3],Alpha,4)
+	current_logL <- PlogL(X,nn[,3],Alpha,4,100)
+    
+	while(logL(X,nn[,3],Alpha+s*d,4)  < current_logL)
+      	 s <- s/2 
+
+    # update
+    Alpha <- Alpha + s*d
+    current_grad <-  gradL(Alpha , X , nn[,3] , 4 ) } )
+
+
+j=i
+```
+
+```{r echo=F}
+blerg<-read.csv("G:/math/504/a01.csv")
+Alpha<-blerg[,1];Alpha
+```
+
+\
+
+```{r}
+x1<-matrix(4*runif(10000 )-2, 5000,2)
+test<-as.data.frame((NN(x1,Alpha ,4)))
+test<-cbind(test,x1)
+test$y1<- ifelse( test[,1]>.5 , 0,1)
+test$y2<- ifelse( test[,1]>.7 , 0,1)
+test$y3<- ifelse( test[,1]>.3 , 0,1)
+names(test)[3:4]<-c("x1","x2")
+
+p1 <- ggplot(test, aes(x1, x2)) + geom_point(aes(colour = factor(y1))) +
+  ylim(-2.5, 2.5) + xlim( -2.5,2.5 ) + ggtitle("p = 0.5") 
+p2 <- ggplot(test, aes(x1, x2)) + geom_point(aes(colour = factor(y2))) +
+  ylim(-2.5, 2.5) + xlim( -2.5,2.5 ) + ggtitle("p = 0.7") 
+p3 <- ggplot(test, aes(x1, x2)) + geom_point(aes(colour = factor(y3))) +
+  ylim(-2.5, 2.5) + xlim( -2.5,2.5 ) + ggtitle("p = 0.3") 
+
+multiplot(p1, p2, p3,  p,cols=2)
+```
+
+
+
+\ 
+
+$\rho = 1$
+
+\ 
+
+```{r eval=F}
+j=1;current_grad <- gradL(Alpha , X , nn[,3] , 4 ) 
+system.time(
+ for(i in j:(2000)) {
+    #iter <- iter + 1
+	
+	d <- current_grad/Norm(current_grad)	
+	
+	s <- 1 
+	#current_logL <- logL(X,nn[,3],Alpha,4)
+	current_logL <- PlogL(X,nn[,3],Alpha,4,1)
+    
+	while(logL(X,nn[,3],Alpha+s*d,4)  < current_logL)
+      	 s <- s/2 
+
+    # update
+    Alpha <- Alpha + s*d
+    current_grad <-  gradL(Alpha , X , nn[,3] , 4 ) } )
+
+
+j=i
+```
+
+
+\ 
+
+```{r echo=F}
+blerg<-read.csv("G:/math/504/a01.csv")
+Alpha<-blerg[,2];Alpha
+```
+
+\
+
+```{r}
+x1<-matrix(4*runif(10000 )-2, 5000,2)
+test<-as.data.frame((NN(x1,Alpha ,4)))
+test<-cbind(test,x1)
+test$y1<- ifelse( test[,1]>.5 , 0,1)
+test$y2<- ifelse( test[,1]>.7 , 0,1)
+test$y3<- ifelse( test[,1]>.3 , 0,1)
+names(test)[3:4]<-c("x1","x2")
+
+p1 <- ggplot(test, aes(x1, x2)) + geom_point(aes(colour = factor(y1))) +
+  ylim(-2.5, 2.5) + xlim( -2.5,2.5 ) + ggtitle("p = 0.5") 
+p2 <- ggplot(test, aes(x1, x2)) + geom_point(aes(colour = factor(y2))) +
+  ylim(-2.5, 2.5) + xlim( -2.5,2.5 ) + ggtitle("p = 0.7") 
+p3 <- ggplot(test, aes(x1, x2)) + geom_point(aes(colour = factor(y3))) +
+  ylim(-2.5, 2.5) + xlim( -2.5,2.5 ) + ggtitle("p = 0.3") 
+
+multiplot(p1, p2, p3,  p, cols=2)
+```
+
+
+\
+
+$\rho = 100$
+
+\ 
+
+```{r eval=F}
+j=1;current_grad <- gradL(Alpha , X , nn[,3] , 4 ) 
+system.time(
+ for(i in j:(2000)) {
+    #iter <- iter + 1
+	
+	d <- current_grad/Norm(current_grad)	
+	
+	s <- 1 
+	#current_logL <- logL(X,nn[,3],Alpha,4)
+	current_logL <- PlogL(X,nn[,3],Alpha,4,100)
+    
+	while(logL(X,nn[,3],Alpha+s*d,4)  < current_logL)
+      	 s <- s/2 
+
+    # update
+    Alpha <- Alpha + s*d
+    current_grad <-  gradL(Alpha , X , nn[,3] , 4 ) } )
+
+
+j=i
+```
+
+
+
+\ 
+
+```{r echo=F}
+blerg<-read.csv("G:/math/504/a01.csv")
+Alpha<-blerg[,2];Alpha
+```
+
+\
+
+```{r}
+x1<-matrix(4*runif(10000 )-2, 5000,2)
+test<-as.data.frame((NN(x1,Alpha ,4)))
+test<-cbind(test,x1)
+test$y1<- ifelse( test[,1]>.5 , 0,1)
+test$y2<- ifelse( test[,1]>.7 , 0,1)
+test$y3<- ifelse( test[,1]>.3 , 0,1)
+names(test)[3:4]<-c("x1","x2")
+
+p1 <- ggplot(test, aes(x1, x2)) + geom_point(aes(colour = factor(y1))) +
+  ylim(-2.5, 2.5) + xlim( -2.5,2.5 ) + ggtitle("p = 0.5") 
+p2 <- ggplot(test, aes(x1, x2)) + geom_point(aes(colour = factor(y2))) +
+  ylim(-2.5, 2.5) + xlim( -2.5,2.5 ) + ggtitle("p = 0.7") 
+p3 <- ggplot(test, aes(x1, x2)) + geom_point(aes(colour = factor(y3))) +
+  ylim(-2.5, 2.5) + xlim( -2.5,2.5 ) + ggtitle("p = 0.3") 
+
+multiplot(p1, p2, p3, p,  cols=2)
+```
+
+
+\vspace{2 cm}
+
+
+
+
+
+
+
+\ 
+
+\begin{itemize} \item[3.] Repeat problem 2,  but now use a logistic regression to build your classifier.  How does the logistic regression classifier compare to the neural net classifier?  
+ \end{itemize} 
+
+
+\ 
+
+```{r}
+nn.fit<-glm(y~.,data = nn, family = "binomial")
+logclass<-cbind(nn,predict(nn.fit,type="response"))
+logclass$yhat<-ifelse( logclass[,4]> .5 , 0,1)
+
+p1 <- ggplot(logclass, aes(x1, x2)) + geom_point(aes(colour = factor(yhat))) +
+	stat_function(fun=function(x){ -(0.2447 /0.2031 ) -(0.0186*x/0.2031 ) -
+	(log((1/.5)-1) /0.2031 ) },	geom="line" , color = "black") + ggtitle("p = 0.5")
+  
+logclass$yhat<-ifelse( logclass[,4]> .55 , 0,1)
+p2 <- ggplot(logclass, aes(x1, x2)) + geom_point(aes(colour = factor(yhat))) +
+	stat_function(fun=function(x){ -(0.2447 /0.2031 ) -(0.0186*x/0.2031 ) -
+	(log((1/.55)-1) /0.2031 ) },	geom="line" , color = "black") + ggtitle("p = 0.55")
+
+logclass$yhat<-ifelse( logclass[,4]> .6 , 0,1)
+p3<- ggplot(logclass, aes(x1, x2)) + geom_point(aes(colour = factor(yhat))) +
+	stat_function(fun=function(x){ -(0.2447 /0.2031 ) -(0.0186*x/0.2031 ) -
+	(log((1/.6)-1) /0.2031 ) },	geom="line" , color = "black") + ggtitle("p = 0.6")
+
+logclass$yhat<-ifelse( logclass[,4]> .65 , 0,1)
+p4 <- ggplot(logclass, aes(x1, x2)) + geom_point(aes(colour = factor(yhat))) +
+	stat_function(fun=function(x){ -(0.2447 /0.2031 ) -(0.0186*x/0.2031 ) -
+	(log((1/.65)-1) /0.2031 ) },	geom="line" , color = "black") + ggtitle("p = 0.65")
+
+multiplot(p1, p2, p3, p4,  cols=2)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
