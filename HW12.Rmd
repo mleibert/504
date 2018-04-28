@@ -1,5 +1,5 @@
 ---
-title: ''
+geometry: margin=.75in
 output: pdf_document
 ---
 
@@ -34,7 +34,6 @@ p <- ggplot(nn, aes(x1, x2)) + geom_point(aes(colour = factor(y))) +
   theme(legend.position="bottom");p 
 ```
 
-
 \ 
 
  \begin{itemize} \item[(b)]  Let $\eta$ be the parameters of the neural net (i.e. all the $\alpha$'s and $\beta$'s).  What is the dimension of $\eta$ in terms of $m$?  
@@ -58,7 +57,10 @@ p <- ggplot(nn, aes(x1, x2)) + geom_point(aes(colour = factor(y))) +
  
 
  \end{itemize} 
-
+ 
+```{r eval=F}
+X<-as.matrix(nn[,-3])
+```
 ```{r}
 
 sigmoid<-function(a,w){	(1+exp(-a[1]-apply(w,1, function(w)  t(a[-1])%*%w )	))^(-1)}
@@ -78,6 +80,7 @@ NN<-function(x,eta,m){
 	return(Y)
 }
 
+#test
 head( NN(nn[,-3],  runif(22,-1,1) , 4) )
 ```
 
@@ -99,8 +102,8 @@ head( NN(nn[,-3],  runif(22,-1,1) , 4) )
  \begin{itemize} \item[ ]  We are trying to classify each data point by a function that approximates $P(Y|X)$. This is similar to logistic (or other binary regression) because we have two classes and we can derive the likelihood in the same way. Let $\pi = P(y=1|x)$.
  
  \begin{align*}
- \mathcal{L}(\eta) &= \prod_{i=1}^N pi_i^{y_i} (1-pi_i)^{1-y_i} \\
- \ell(\eta) &= \sum_{i=1}^N y_i \log(\pi_i) + (1-y_i) \log(1-\pi_i)
+ \mathcal{L}(\eta) &= \prod_{i=1}^N \pi_i^{y_i} (1-\pi_i)^{1-y_i} \\
+ \ell(\eta) &= \sum_{i=1}^N y_i \log(\pi_i) + (1-y_i) \log(1-\pi_i).
  \end{align*}
  
 For our neural net, we know our $Y_1 \sim P(y=0|x)$ and $Y_2 \sim P(y=1|x)$, so:
@@ -109,6 +112,12 @@ For our neural net, we know our $Y_1 \sim P(y=0|x)$ and $Y_2 \sim P(y=1|x)$, so:
  \ell(\eta) &= \sum_{i=1}^N  (1-y_i) \log(1-\pi_i) + y_i \log(\pi_i) \\
  &= \sum_{i=1}^N    (1-y_i) \log(Y_1) + y_i \log(Y_2).
  \end{align*}
+ 
+\ 
+
+
+We look at our $ith$ data sample and it can be in one of two classes, $y=0$ or $y=1$. If the sample is of class 0 and the prediction for its probability is $Y_1$, and if it is of class 1 the prediction for its probability is $Y_2$. In the case of neural nets $Y_1$ and $Y_2$ are nested functions that depend on $\eta$ and $x_i$.
+
 \ 
 
 \end{itemize} 
@@ -131,11 +140,13 @@ gradL<-function(eta,x,y,m ){
 			
 		Yp<-NN(x,ETA,m)
 		
+		#finite difference
 		gradf[i]<-(sum( (1-y)*log(Yp[,1]) + ( y)*log(Yp[,2])  ) - logl  ) / (10^-6)	}
 	
 	return(gradf)
 }
 
+#test
 gradL(runif(22,-1,1),nn[,-3],nn[,3],4)
 ```
 
@@ -155,6 +166,12 @@ gradL(runif(22,-1,1),nn[,-3],nn[,3],4)
 ```{r echo=F}
 Alpha<-c(-3.7748365, 2.1178734, 0.3139542, -5.5415006, -.5958018, 5.8168459, 11.0561352, 0.2074085, 14.0207743, 25.2868297, 16.0428078, 3.8300725, 15.9792114, 23.4815794, 23.2210775, -13.5097426, -12.2073593, -18.6510642, -27.0546378, -27.4979835, 15.2350215, 14.7081561)
 source("multiplot.R")
+test<-as.data.frame((NN(nn[,-3],Alpha ,4)))
+test<-cbind(test,nn[,-3])
+test$y3<- ifelse( test[,1]>.5 , 0,1)
+names(test)[3:4]<-c("x1","x2")
+p <- ggplot(nn, aes(x1, x2)) + geom_point(aes(colour = factor(y))) +   
+  theme(legend.position="bottom")
 ```
 
 ```{r eval=F}
@@ -183,7 +200,15 @@ for(i in j:(3000)) {
 ```{r}
 #Alpha is eta (alphas and betas)
 Alpha
+multiplot(ggplot(test, aes(x1, x2)) + geom_point(aes(colour = factor(y3))) +
+            theme(legend.position="bottom")+ ggtitle("Test")   ,p + ggtitle("Actual") ,  cols=2 ) 
 ```
+
+
+\ 
+
+\begin{itemize}\item[]  \hfil Decent fit with a cutoff of $p=0.5$, but it is not overfitting the ``tail'' part.
+\end{itemize} 
 
 \ 
 
@@ -195,13 +220,7 @@ F(x) = \big\{
 1 & \text{if } Y_1(x, \eta) \ge p
 \end{array}
 \end{equation} 
-Try different value of $p$ and for each $p$, visualize your classifier.  You can do this in any way you like, but here is one way.   Generate many points in $\mathbb{R}^2$, determine the predicted class of each using your classifier, and then plot as in part (a).  You can generate random coordinates within $[-2, 2]$, which is roughly where all the data points lie, using
-\begin{verbatim}
-x1 <- 4*runif(10000) - 2
-x2 <- 4*runif(10000) - 2
-\end{verbatim}
-\verb+runif(10000)+ generates $10000$ numbers uniformly distributed on $[0,1]$.  
-
+Try different value of $p$ and for each $p$, visualize your classifier.  
  \ 
  
 \end{itemize} 
@@ -230,9 +249,9 @@ multiplot(p1, p2, p3,p,  cols=2)
 
 ```
 
-
-
 \ 
+
+\newpage
 
  \begin{itemize} \item[(g)] Now repeat (e) and (f), but in your log likelihood, include a penalty term of the form,
 
@@ -262,6 +281,7 @@ Train your net with several values of $\rho$, visualize the resulting classifier
 \ 
 
 ```{r}
+#Penalized Log likelihood function
 PlogL<-function(x,y,eta,m,rho){
 	X<-as.matrix(x)
 	ALPHA<-matrix(eta[1:prod( c(dim(X)[2] + 1, m ) )], dim(X)[2] + 1 , m)
@@ -278,7 +298,7 @@ PlogL<-function(x,y,eta,m,rho){
 
 \ 
 
-$\rho = 0.1$
+\hfil {\Large $\rho = 0.1$}
 
 \ 
 
@@ -291,13 +311,12 @@ system.time(
 	d <- current_grad/Norm(current_grad)	
 	
 	s <- 1 
-	#current_logL <- logL(X,nn[,3],Alpha,4)
-	current_logL <- PlogL(X,nn[,3],Alpha,4,100)
+	#Penalized Log likelihood
+	current_logL <- PlogL(X,nn[,3],Alpha,4,.1)
     
 	while(logL(X,nn[,3],Alpha+s*d,4)  < current_logL)
       	 s <- s/2 
 
-    # update
     Alpha <- Alpha + s*d
     current_grad <-  gradL(Alpha , X , nn[,3] , 4 ) } )
 
@@ -338,7 +357,8 @@ multiplot(p1, p2, p3,  p,cols=2)
 
 \ 
 
-$\rho = 1$
+\hfil {\Large $\rho = 1$}
+
 
 \ 
 
@@ -398,7 +418,7 @@ multiplot(p1, p2, p3,  p, cols=2)
 
 \
 
-$\rho = 100$
+\hfil {\Large $\rho = 100$}
 
 \ 
 
@@ -455,6 +475,14 @@ p3 <- ggplot(test, aes(x1, x2)) + geom_point(aes(colour = factor(y3))) +
 multiplot(p1, p2, p3, p,  cols=2)
 ```
 
+\ 
+
+\begin{itemize} \item[] The non-penalized data was a decent fit, but was almost rectangular in nature. The penalized likelihood example data are giving it more of a flatter, oval shaped fit, with specific good fits with moderate cutoffs at $p=0.5$ and smaller $\rho$'s at 0.1 and 1. It looks like the heavily penalized data, $\rho = 100$, is getting a bit of the shape chopped off, especially at the top.
+ \end{itemize} 
+
+
+
+
 
 \vspace{2 cm}
 
@@ -508,6 +536,8 @@ multiplot(p1, p2, p3, p4,  cols=2)
 
 
 
+\begin{itemize} \item[] The logistic regression classifier is downright bad compared to the neural net. Since the linear predictor function can only construct a line or plane it is having a lot of trouble with our oval/ellipse shaped data. Our neural net classifier, both penalized and non-penalized, is doing a relatively decent job with both our training data and test data. The oval/ellipse is not giving it much trouble.
+ \end{itemize} 
 
 
 

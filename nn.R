@@ -103,7 +103,7 @@ j<-i
 NN(X,aaa,4)
 
 
- set.seed(4);Alpha=runif(22,-1, 1) 
+ set.seed(1);Alpha=runif(22,-1, 1) 
  set.seed(4);ALPHA=runif(22,-1, 1) 
 
 j=1;current_grad <- gradL(Alpha , nn[,-3] , nn[,3] , 4 ) 
@@ -115,7 +115,7 @@ system.time(
 	
 	s <- 1 
 	 current_logL <- logL(X,nn[,3],Alpha,4)
-	#current_logL <- PlogL(X,nn[,3],Alpha,4,100)
+	 current_logL <- PlogL(X,nn[,3],Alpha,4,100)
     
 	while(logL(X,nn[,3],Alpha+s*d,4)  < current_logL)
       	 s <- s/2 
@@ -126,7 +126,7 @@ system.time(
 
 
 j=i
-logL(X,nn[,3],Alpha ,4)	 
+logL(X,nn[,3],Alpha* 1.5 ,4)	 
 
 
 NN(nn[,-3],Alpha ,4)
@@ -141,28 +141,36 @@ Alpha <-c(-3.7748365, 2.1178734, 0.3139542, -5.5415006, -.5958018,
 	5.8168459, 11.0561352, 0.2074085, 14.0207743, 25.2868297, 16.0428078, 
 	3.8300725, 15.9792114, 23.4815794, 23.2210775, -13.5097426, -12.2073593, 
 	-18.6510642, -27.0546378, -27.4979835, 15.2350215, 14.7081561)
+ blerg<-read.csv("G:/math/504/a01.csv")
+Alpha<-blerg[,ncol(blerg)];Alpha
+
+logL(nn[,-3],nn[,3],Alpha,4)
 
 x1<-matrix(4*runif(2000 )-2, 1000,2)
+x1<-nn[,-3]
 test<-as.data.frame((NN(x1,Alpha ,4)))
 test<-cbind(test,x1)
-test$y1<- ifelse( test[,1]>.5 , 0,1)
-test$y2<- ifelse( test[,1]>.7 , 0,1)
 test$y3<- ifelse( test[,1]>.3 , 0,1)
+test$y3<- ifelse( test[,1]>.5 , 0,1)
+
 names(test)[3:4]<-c("x1","x2")
-tail(test)
-
-#logistic classiffier
-sigmoid
-test$y4<- ifelse( test[,1]>.3 , 0,1)
+ 
+p <- ggplot(test, aes(x1, x2)) + geom_point(aes(colour = factor(y3)))  
+ p 
 
 
+ 
+realp<-ggplot(nn, aes(x1, x2)) + geom_point(aes(colour = factor(y))) 
 
-p <- ggplot(test, aes(x1, x2)) + geom_point(aes(colour = factor(y2))) +
-	ylim(-2.5, 2.5) + xlim( -2.5,2.5 )
+p <- ggplot(test, aes(x1, x2)) + geom_point(aes(colour = factor(y3)))  
  p 
 
 
 dev.new()
+
+p <- ggplot(nn, aes(x1, x2)) + geom_point(aes(colour = factor(y))) +   
+  theme(legend.position="bottom");p 
+
 p <- ggplot(test, aes(x1, x2)) + geom_point(aes(colour = factor(clas))) +
 	ylim(-2.5, 2.5) + xlim( -2.5,2.5 )
  p 
