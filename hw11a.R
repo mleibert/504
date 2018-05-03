@@ -168,7 +168,9 @@ a<-sample( 1:7,2)
 a<-c(4,5)
 B4d<-  B4d[,-a]
 
-alpha4d <- solve(t(B4d) %*% B4d, t(B4d) %*% as.matrix(dat4d$y) )
+alpha4d <- solve(t(B4d) %*% B4d, t(B4d) %*% as.matrix(dat4d$y) )  
+	
+
 x_grid <- seq(min(dat4d$x), max(dat4d$x), .01)
 B_grid <- model_matrix(x_grid)
 y_grid <-B_grid[,-a] %*% alpha4d 

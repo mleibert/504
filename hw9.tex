@@ -1,0 +1,126 @@
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\newcommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
+\setlength{\droptitle}{-2em}
+  \title{}
+  \pretitle{\vspace{\droptitle}}
+  \posttitle{}
+  \author{}
+  \preauthor{}\postauthor{}
+  \date{}
+  \predate{}\postdate{}
+
+
+\begin{document}
+
+\textbackslash{}begin\{enumerate\}
+
+\item 
+
+This problem provides an example of how interpolation can be used. The
+attached spreadsheet provides life expectancy data for the US
+population. The second column gives the probability of death for the
+given age. So, for example, the probability that a person between the
+ages of \(20\) and \(21\) dies is \(0.000894\).
+
+Suppose a \(40\) year old decides to buy life insurance. The \(40\) year
+old will make monthly payments of \(\$200\) \%\%\$ make the green go
+away! every month until death. In this problem we will consider the
+worth of these payments, a quantity of interest to the insurance
+company. The payoff upon death will not be considered in this problem.
+If we assume (continuous time) interest rates of \(5\%\) and let \(m\)
+be the number of months past age \(40\) that the person lives, then the
+present value of the payments (how much future payments are worth in
+today's dollars) is,
+
+\begin{equation}  \label{PV}
+PV = \sum_{i=1}^m 200 e^{-.05 i/12}
+\end{equation}
+
+Our goal is to determine the average of PV, in other words
+\(E[\text{PV}]\). For the insurance company, this is one way to measure
+the revenue brought in by the policy. The difficulty is that our data is
+yearly, while payments are made monthly and people do not always die at
+the beginning of the month.
+
+\begin{enumerate}
+\item Let $L(t)$ be the probability the 40 year old lives past the age $40+t$ where $t$ is any positive real number.  Estimate $L(t)$ by first considering $t=0,1,2,\dots$.   These values of $L(t)$ can be computed using the spreadsheet data.  (For example, for the $40$ year old to live to $42$, they must not die between the ages $40-41$ and $41-42$).  For other $t$ values, interpolate using a cubic spline.  In R you can use the \textbf{spline} and \textbf{splinefun} commands to construct cubic splines, see the help documentation.   Graph the interpolating cubic spline of $L(t)$ and include the datapoints, i.e. $L(t)$ for $t=0,1,\dots$.. 
+\newcommand{\DL}{\text{DL}}
+\item Explain why the expected (average) present value of the payments is given by
+\begin{equation}  
+E[PV] = \sum_{i=1}^\infty 200 L(i/12) e^{-.05 i/12}
+\end{equation}
+In practice we can't sum to $\infty$, choose an appropriate cutoff and calculate $E[\text{PV}]$. 
+\end{enumerate}
+
+
+\end{document}

@@ -1,0 +1,667 @@
+---
+output: pdf_document
+geometry: margin=.65in
+header-includes:
+  - \usepackage{bm}
+---
+
+```{r set-options, echo=FALSE, cache=FALSE}
+options(width = 1111)
+```
+
+Michael Leibert
+
+Math 504 
+
+Homework 13
+
+\ 
+
+\begin{itemize} \item[2]
+With this assignment you will find the file \verb+users-shows.txt+.   This file gives a $9985$ by $563$ matrix, call it $A$, corresponding to $563$ television shows and $9985$ television users..    The matrix is composed of $0$'s and $1$'s.  A $1$ means that the user likes the show, a $0$ means they do not.  The shows, if you are interested, are listed in the file \verb+shows.txt+.   The $500$th user, let's call him Alex, has had his preferences for the first $100$ shows removed from the matrix and replaced with all $0$'s.  His actual preferences are in the file \verb+Alex.txt+.  Your goal is to use the svd to suggest $5$ shows from the first $100$ that you believe Alex would like.   You can then check your answer against his actual preferences.  You should use R's svd function to compute the SVD of $A$.
+
+\ 
+
+\begin{itemize} \item[(a)]As a warmup to this problem, show following.  Given the SVD decomposition of $A = USV^T$, show that $A = \sum_{i=1}^{563} s_i u^{(i)} (v^{(i)})^T$ where $u^{(i)}$ and $v^{(i)}$ are the $i$th columns of $U$ and $V$ respectively.  
+\end{itemize}
+\end{itemize}
+  
+   \begin{align*}
+     A &= USV^T \\
+     &=  \begin{pmatrix} 
+     u_{11} & u_{12} & ... & u_{1m}   \\[.25em]
+     u_{21} & u_{22} & ... & u_{2m}   \\[.25em]
+     \vdots & \vdots  & \ddots  & \vdots  \\[.25em]
+     u_{m1} & u_{m2} & ... & u_{mm}   \\[.25em] 
+     \end{pmatrix}   
+     \begin{pmatrix} 
+     s_{11} & & &     \\[.1em]
+     & s_{22} & &    \\[.1em]
+     & & \ddots &        \\[.1em]
+     & & & s_{nn}  \\[.1em] 
+     & & &     \\[.1em]
+     & & &     \\
+     \end{pmatrix} 
+     \begin{pmatrix} 
+     v_{11} & v_{21} & ... & v_{m1}   \\[.25em]
+     v_{12} & v_{22} & ... & v_{m2}   \\[.25em]
+     \vdots & \vdots  & \ddots  & \vdots  \\[.25em]
+     v_{1m} & v_{2m} & ... & v_{mm}   \\[.25em] 
+     \end{pmatrix} \\   
+          &= \begin{pmatrix} 
+     u_{11}s_{11} & u_{12}s_{22} & ... & u_{1n} s_{nn}  \\[.25em]
+     u_{21} s_{11}& u_{22} s_{22}& ... & u_{2n}s_{nn}   \\[.25em]
+     \vdots  & \vdots  & \ddots  & \vdots  \\[.25em]
+     u_{m1} s_{11}& u_{m2}s_{22} & ... & u_{mn}s_{nn}   \\[.25em] 
+     \end{pmatrix}       
+     \begin{pmatrix} 
+     v_{11} & v_{21} & ... & v_{m1}   \\[.25em]
+     v_{12} & v_{22} & ... & v_{m2}   \\[.25em]
+     \vdots & \vdots  & \ddots  & \vdots  \\[.25em]
+     v_{1m} & v_{2m} & ... & v_{mm}   \\[.25em] 
+     \end{pmatrix} \\
+         &=  \begin{pmatrix} 
+     u_{11}s_{11}v_{11} +u_{12}s_{22}v_{12} + ...+  u_{1n}s_{nn}v_{1n} & u_{11}s_{11}v_{21} +u_{12}s_{22}v_{22} + ...+ 
+     u_{1n}s_{nn}v_{2n}   & ... & \\[.25em]
+     u_{21}s_{11}v_{11} +u_{22}s_{22}v_{12} + ...+  u_{2n}s_{nn}v_{1n} & u_{21}s_{11}v_{21} +u_{22}s_{22}v_{22} + ...+  u_{2n}s_{nn}v_{2n}   & ...& \\[.25em]
+     \vdots  & \vdots  & \ddots  \\[.25em]
+     u_{m1}s_{11}v_{11} +u_{m2}s_{22}v_{12} + ...+  u_{mn}s_{nn}v_{1n} & u_{m1}s_{11}v_{21} +u_{m2}s_{22}v_{22} + ...+  u_{mn}s_{nn}v_{2n}   & ...&         \\[.25em] 
+     \end{pmatrix} \\
+    &= \begin{pmatrix} 
+     u_{11}s_{11}v_{11} & u_{11}s_{11}v_{21} & ... & u_{11}s_{11}v_{n1}  \\[.25em]
+     u_{21}s_{11}v_{11} & u_{21}s_{11}v_{21} & ... & u_{21}s_{11}v_{n1}   \\[.25em]
+     \vdots  & \vdots  & \ddots  & \vdots  \\[.25em]
+     u_{m1}s_{11}v_{11} & u_{m1}s_{11}v_{21} & ... & u_{m1}s_{11}v_{n1}   \\[.25em]
+     \end{pmatrix}    +
+     \begin{pmatrix} 
+     u_{12}s_{22}v_{12} & u_{12}s_{22}v_{22} & ... & u_{12}s_{22}v_{n2}  \\[.25em]
+     u_{22}s_{22}v_{12} & u_{22}s_{22}v_{22} & ... & u_{22}s_{22}v_{n2}  \\[.25em]
+     \vdots  & \vdots  & \ddots  & \vdots  \\[.25em]
+     u_{m2}s_{22}v_{12} & u_{m2}s_{22}v_{22} & ... & u_{m2}s_{22}v_{n2}  \\[.25em]
+     \end{pmatrix} +  ... + \\
+    &=  s_{11} \begin{pmatrix} 
+     u_{11}v_{11} & u_{11}v_{21} & ... & u_{11}v_{n1}  \\[.25em]
+     u_{21}v_{11} & u_{21}v_{21} & ... & u_{21}v_{n1}   \\[.25em]
+     \vdots  & \vdots  & \ddots  & \vdots  \\[.25em]
+     u_{m1}v_{11} & u_{m1}v_{21} & ... & u_{m1}v_{n1}   \\[.25em]
+     \end{pmatrix}    +
+     s_{22}  \begin{pmatrix} 
+     u_{12}v_{12} & u_{12}v_{22} & ... & u_{12}v_{n2}  \\[.25em]
+     u_{22}v_{12} & u_{22}v_{22} & ... & u_{22}v_{n2}  \\[.25em]
+     \vdots  & \vdots  & \ddots  & \vdots  \\[.25em]
+     u_{m2}v_{12} & u_{m2}v_{22} & ... & u_{m2}v_{n2}  \\[.25em]
+     \end{pmatrix} +  ... +      \\
+     &= s_{11}   \begin{pmatrix}
+     u_{11} \\
+     u_{21} \\
+     \vdots\\
+     u_{m1} \\ 
+     \end{pmatrix}  
+     \begin{pmatrix}
+     v_{11} &  v_{21} &     ...   v_{n1} \\ 
+     \end{pmatrix} +  s_{22}   \begin{pmatrix}
+     u_{12} \\
+     u_{22} \\
+     \vdots\\
+     u_{m2} \\ 
+     \end{pmatrix}  
+     \begin{pmatrix}
+     v_{12} &  v_{22} &     ...   v_{n2} \\ 
+     \end{pmatrix}+ ... + s_{nn}   \begin{pmatrix}
+     u_{1n} \\
+     u_{2n} \\
+     \vdots\\
+     u_{mn} \\ 
+     \end{pmatrix}  
+     \begin{pmatrix}
+     v_{1n} &  v_{2n} &     ...   v_{nn} \\      \end{pmatrix} \\
+     &=\sum_{i=1}^{n=563} s_i u^{(i)} \left(v^{(i)}\right)^T
+ \end{align*}
+ 
+ \ 
+ 
+ 
+\begin{itemize} \item[]
+\begin{itemize} \item[(b)]Compute the SVD of $A$ and plot the singular values.   How many singular values would accurately approximate this matrix?  (What accurate means here is up to you.)  
+\end{itemize}
+\end{itemize}
+
+\ 
+
+
+```{r}
+setwd("G:\\math\\504")
+options(scipen=999)
+ Norm <- function(w){  sqrt(sum(w^2))}
+require(ggplot2)
+
+dat<-read.table("user-shows.txt")
+shows<-read.table("shows.txt")
+alex<-read.table("alex.txt");colnames(alex)<-as.vector(shows$V1)
+
+sdat<-svd(as.matrix(dat))
+par(mar=c(5.1,4.1,2.1,2.1))
+plot(sdat[[1]])
+head( sum(sdat[[1]])-cumsum(sdat[[1]]) ); tail(sum(sdat[[1]])-cumsum(sdat[[1]]))
+plot(sdat[[1]],xlim=c(0,20))
+```
+
+\ 
+
+\begin{itemize} \item[]
+\begin{itemize} \item[ ] Five singular values may approximate this matrix accurately enough.
+\end{itemize}
+\end{itemize}
+
+
+\ 
+
+\begin{itemize} \item[(c)]
+\begin{itemize} \item[ ] Use the SVD to reduce the data to two dimensions as follows.  Project the users onto the appropriate two dimenaional PCA space and plot; do the same for the shows.   Using these projections, suggest five movies for Alex.
+
+
+
+\ 
+
+I did a euclidean distance measure for both people close to Alex and shows that are close to his. 
+
+
+\end{itemize}
+\end{itemize}
+
+
+\ 
+
+```{r}
+U<-as.data.frame(sdat$u[,1:2]);V<-as.data.frame(sdat$v[,1:2] )
+UU<-data.frame(apply(U , 1, function(z) Norm(z-as.numeric(U[ 500,]) )^2),	1:nrow(U))
+buddies<-order(UU[,1])[ 2:30]
+
+ggplot(U,aes(V1,V2)) + geom_point() +    geom_point(data=U[buddies,], colour="green") +
+  geom_point(data=U[500,], colour="red") 
+
+ggplot(U,aes(V1,V2)) + geom_point() +    geom_point(data=U[500,], colour="red")+    xlim(-0.008173631-.001, -0.008173631+.001)  +	
+  ylim(-0.0008980471-.001, -0.0008980471+.001) + geom_point(data=U[buddies,], colour="green")
+
+colnames(dat)<-as.vector(shows$V1)
+recommend<-dat[buddies,]
+recommend<-rbind(recommend,colSums(recommend))
+
+```
+```{r, echo = F}
+Mr<-read.table("mr.txt");Mr<-as.numeric(Mr[,1])
+```
+```{r eval=FALSE}
+for(i in 1:length(Mr) ){
+	dattt<- (data.frame(apply(V[-NO,] , 1, function(z) Norm(z-
+		V[which(dat[500,] == 1),][i,]  )^2),1:(nrow(V)-length(NO))) )
+	Mr[i]<-order(dattt[  ,1])[1] }
+```
+```{r}
+ggplot(V,aes(V1,V2)) + geom_point() +  
+  geom_point(data=V[ which(dat[500,] == 1),], colour="red")  +
+	 geom_point(data=V[ Mr,], colour="green") 
+
+ data.frame(colnames(recommend[ ,which( recommend[30, ] > 14 )])[-c(1,3)]  )
+```
+
+ 
+
+\ 
+
+ 
+
+\vspace{1 cm}
+
+\begin{itemize} 
+\item[3.] Let $A$ be an $m \times n$ matrix
+\end{itemize} 
+
+\ 
+
+
+\begin{itemize}
+\item[(a)] Go through the three cases for $A$ -  thin, square, and fat - and derive the formula for the psuedoinverse in terms of the SVD of $A$.  (We did this in class, showing that $\tilde{A}^{-1} = V \tilde{S}^{-1} U^T$.)
+
+
+
+\ 
+
+
+Recall, \( \displaystyle  S_{m \times n} =   \begin{pmatrix} 
+     s_{11} & & &     \\[.1em]
+     & s_{22} & &    \\[.1em]
+     & & \ddots &        \\[.1em]
+     & & & s_{nn}  \\[.1em] 
+     & & &     \\[.1em]
+     & & &     \\ \end{pmatrix} \) and 
+ \( \displaystyle  S_{n \times m} =\begin{pmatrix}
+       s_{11}  & & &  & & & &    \\[.1em]
+     & s_{22}& &  & & &   \\[.1em]
+     & & \ddots &  &     & &   \\[.1em]
+     & & &  s_{mm} & & &  \\[.1em] 
+     \end{pmatrix} \) 
+     
+     
+\
+
+\
+
+For the case $m>n$, a thin matrix
+
+\begin{align*}
+    A_{m\times n} \  {\bm x}_{n\times 1} &= {\bm b}_{m\times 1} \\
+    U_{m\times m} \ S_{m \times n} \ V_{n\times n}^T \  {\bm x}_{n\times 1} &= {\bm b}_{m\times 1} \\
+    S_{m \times n} \ V_{n\times n}^T \  {\bm x}_{n\times 1} &=  U_{m\times m}^T \ {\bm b}_{m\times 1} \\
+    S_{m \times n} \    {\bm y}_{n\times 1} &=   {\bm z}_{m\times 1} \\
+\end{align*} 
+
+We now have a diagonal matrix $S_{m \times n}$. If we want to get as close as possible to $z$, we can write:
+
+\ 
+
+
+\hfil $y_1 = \cfrac{z_1}{s_{11}}$, $y_2= \cfrac{z_2}{s_{22}}$ , ..., $y_n= \cfrac{z_n}{s_{nn}}$
+
+\ 
+
+\
+ 
+ We can't do anything about $z_{n+1}$ to $z_{m}$. So our pseudoinverse is an $n \times m$ matrix,
+ 
+ \ 
+ 
+ \hfil \( \displaystyle \widetilde{S}^{-1} =\begin{pmatrix}
+     \frac{1}{s_{11}} & & &  & & & &    \\[.1em]
+     & \frac{1}{s_{22}} & &  & & &   \\[.1em]
+     & & \ddots &  &     & &   \\[.1em]
+     & & & \frac{1}{s_{nn}} & & &  \\[.1em] 
+     \end{pmatrix} \)
+\begin{align*}
+  \phantom{U_{m\times m} \ S_{m \times n} \ V_{n\times n}^T \  {\bm x}_{n\times 1}} &  \phantom{ = {\bm b}_{m\times 1} }   \\
+  {\bm y}_{n\times 1} &=  \widetilde{S}^{-1}_{n \times m} \ U_{m\times m}^T \ {\bm b}_{m\times 1} \\
+  {\bm x}_{n\times 1} &= V_{n\times n}  \ \widetilde{S}^{-1}_{n \times m} \   U_{m\times m}^T  \ {\bm b}_{m\times 1} \\
+  {\bm x}_{n\times 1} &= \widetilde{A}^{-1}_{n \times m} \ {\bm b}_{m\times 1}
+\end{align*}
+ 
+ 
+     
+\
+
+\
+
+For the case $m=n$, a square matrix
+
+\begin{align*}
+    A_{n\times n} \  {\bm x}_{n\times 1} &= {\bm b}_{n\times 1} \\
+    U_{n\times n} \ S_{n\times n} \ V_{n\times n}^T \  {\bm x}_{n\times 1} &= {\bm b}_{n\times n} \\
+    S_{n \times n} \ V_{n\times n}^T \  {\bm x}_{n\times 1} &=  U_{n\times n}^T \ {\bm b}_{n\times 1} \\
+    S_{n \times n} \    {\bm y}_{n\times 1} &=   {\bm z}_{n\times 1} \\
+\end{align*} 
+
+ We now have a diagonal matrix $S_{n \times n}$ with only one solution. In this case the pseudoinverse is actually the inverse:
+
+\ 
+
+
+\hfil $y_1 = \cfrac{z_1}{s_{11}}$, $y_2= \cfrac{z_2}{s_{22}}$ , ..., $y_n= \cfrac{z_n}{s_{nn}}$
+
+ 
+ \ 
+ 
+ \hfil \( \displaystyle \widetilde{S}^{-1} =\begin{pmatrix}
+     \frac{1}{s_{11}} & & &      \\[.25em]
+     & \frac{1}{s_{22}} & &    \\[.25em]
+     & & \ddots &   \\[.25em]
+     & & & \frac{1}{s_{nn}}   \\[.25em] 
+     \end{pmatrix} \)
+\begin{align*}
+  {\bm y}_{n\times 1} &=  \widetilde{S}^{-1}_{n \times n} \ U_{n\times n}^T \ {\bm b}_{n\times 1} \\
+  {\bm x}_{n\times 1} &= V_{n\times n}  \ \widetilde{S}^{-1}_{n \times n} \   U_{n\times n}^T  \ {\bm b}_{n\times 1} \\
+  {\bm x}_{n\times 1} &= \widetilde{A}^{-1}_{n \times n} \ {\bm b}_{n\times 1} \\
+  {\bm x}_{n\times 1} &= {A}^{-1}_{n \times n} \ {\bm b}_{n\times 1}
+\end{align*}
+ 
+ 
+ 
+ \ 
+ 
+ \ 
+ 
+ For the case $m<n$, a fat matrix
+
+\begin{align*}
+    A_{m\times n} \  {\bm x}_{n\times 1} &= {\bm b}_{m\times 1} \\
+    U_{m\times m} \ S_{m \times n} \ V_{n\times n}^T \  {\bm x}_{n\times 1} &= {\bm b}_{m\times 1} \\
+    S_{m \times n} \ V_{n\times n}^T \  {\bm x}_{n\times 1} &=  U_{m\times m}^T \ {\bm b}_{m\times 1} \\
+    S_{m \times n} \    {\bm y}_{n\times 1} &=   {\bm z}_{m\times 1} \\
+\end{align*} 
+
+We now have a diagonal matrix $S_{m \times n}$. We also have many solutions, so we will choose the Penrose pseudoinverse.
+
+\ 
+
+
+\hfil $y_1 = \cfrac{z_1}{s_{11}}$, $y_2= \cfrac{z_2}{s_{22}}$ , ..., $y_n= \cfrac{z_m}{s_{nn}}$ and $y_{m+1} = y_{n} = 0$
+
+\ 
+  
+ 
+\hfil \( \displaystyle   \widetilde{S}^{-1} =   \begin{pmatrix} 
+     \frac{1}{s_{11} }& & &     \\[.1em]
+     & \frac{1}{s_{22} } & &    \\[.1em]
+     & & \ddots &        \\[.1em]
+     & & &\frac{1}{s_{nn}}  \\[.1em] 
+     & & &     \\[.1em]
+     & & &     \\ \end{pmatrix} \)
+\begin{align*}
+  \phantom{U_{m\times m} \ S_{m \times n} \ V_{n\times n}^T \  {\bm x}_{n\times 1}} &  \phantom{ = {\bm b}_{m\times 1} }   \\
+  {\bm y}_{n\times 1} &=  \widetilde{S}^{-1}_{n \times m} \ U_{m\times m}^T \ {\bm b}_{m\times 1} \\
+  {\bm x}_{n\times 1} &= V_{n\times n}  \ \widetilde{S}^{-1}_{n \times m} \   U_{m\times m}^T  \ {\bm b}_{m\times 1} \\
+  {\bm x}_{n\times 1} &= \widetilde{A}^{-1}_{n \times m} \ {\bm b}_{m\times 1}
+\end{align*}
+ 
+
+
+
+\item[(b)]Suppose $A$ is thin and we want to find the closest $x$ such that $Ax = b$.   There are two methods that we have used to do this:  1) using the normal equations and 2) using the pseudoinverse.  Show that the two methods give the same result.
+
+\ 
+
+
+\begin{align*}
+  x &=  \left( A^T A \right)^{-1} A^T b \\
+  &= \left( V S^T U^T U S V^T \right)^{-1} V S^T U^T b \\ 
+  &= \left( V S^T I S V^T \right)^{-1} V S^T U^T b \\ 
+  &= V \left( S^T S \right)^{-1} V^T  V S^T U^T b \\ 
+   &= V  \widetilde{S}^{-1} \widetilde{S}^{T}  I S^T U^T b \\ 
+ &= V  \widetilde{S}^{-1} \widetilde{S}^{T}    S^T U^T b \\ 
+  x &= V  \widetilde{S}^{-1}   U^T b \\ 
+\end{align*} 
+ 
+
+\item[(c)]  Consider the dataset $y = \sin(x)$ for $x=1,2,\dots,5$.   Let $\mathcal{F}$ be the set of all polynomials of degree $7$ or less.   Suppose we would like to fit the $(x,y)$ data using $f(x) \in \mathcal{F}$.  Explain how this reduces to solving $B \alpha = y$ where $B$ is a model matrix.  Is $B$ thin, fat, or square?  What does that imply about the number of solutions for $B\alpha = y$.   Now choose $f(x)$ in two ways.  For each, graph the datapoints and the resultant $f(x)$.  Then, contrast the two methods.
+
+\ 
+
+ 
+ $B$ is the $5 \times 7$ model matrix, 
+ 
+ \ 
+ 
+ \hfil \( \begin{pmatrix}
+      h_1(x_1) & h_2(x_1) & ... & h_8(x_1) \\[.2em]
+      h_1(x_2) & h_2(x_2) & ... & h_8(x_2) \\[.2em]
+     \vdots & \vdots  & \ddots  & \vdots  \\[.2em]
+      h_1(x_5) & h_2(x_5) & ... & h_8(x_5) \\[.2em]
+ \end{pmatrix}\)
+ 
+ \ 
+ 
+ where $h_1(x) = 1$, $h_2(x) = x$, $h_3(x) = x^2$, $h_4(x) = x^3$, $h_5(x) = x^4$, $h_6(x) = x^5$, $h_7(x) = x^6$, and $h_8(x) = x^7$. We wish to solve for $\alpha$ by finding an inverse of $B$ that will meet our needs. $B$ is a fat matrix which has infinite many solutions.
+ 
+ 
+ 
+ \ 
+
+
+\begin{enumerate}
+\item  Use the pseudoinverse to solve $B \alpha = y$.
+
+
+\
+
+\item Choose $f(x)$ by minimizing the penalized loss function:  $\|y - B\alpha\|^2 + \rho \|\alpha\|^2$.  Try $\rho = 0, 1, 10$.
+\end{enumerate}
+ \end{itemize}
+
+\ 
+
+
+```{r}
+x<-1:5;y<-as.matrix( sin(x) )
+
+MM <- function(x) { 
+	nx <- length(x)
+	m <- cbind(rep(1, nx), x, x^2, x^3, x^4, x^5, x^6 )
+	colnames(m )<-NULL
+	return(m)	}
+
+B<-MM(x)
+
+Alpha0<-solve(t(B) %*% B + 0 + diag(max(dim(B))) ) %*% t(B) %*% y
+Alpha1<-solve(t(B) %*% B + 1 + diag(max(dim(B))) ) %*% t(B) %*% y
+Alpha10<-solve(t(B) %*% B + 10 + diag(max(dim(B))) ) %*% t(B) %*% y
+
+V1<-eigen(t(B)%*%B)$vectors
+U1<-diag(dim(B)[1])
+S1<-matrix(0,dim(B)[1],dim(B)[2])
+for( i in 1:min(c(dim(V1),dim(U1))) ){	a<-B%*%V1[,i]; U1[,i]<-a/Norm(a); S1[i,i]<-1/Norm(a)} ;rm(a)
+PS<- V1 %*% t(S1) %*% t(U1) %*% y 
+
+x_grid <- seq(min(x), max(x), .001)
+B_grid <- MM(x_grid)
+y_gridps <-B_grid  %*% PS
+y_grid0 <-B_grid  %*% Alpha0
+y_grid1 <-B_grid  %*% Alpha1
+y_grid10 <-B_grid  %*% Alpha10
+
+par(mfrow=c(2,2),mar=c(5.1,4.1,2.1,2.1))
+plot(x,y , ylim = c(-1.5,1.5) , main="Pseudoinverse" )
+lines(x_grid, y_gridps , col="mediumorchid1", lwd=2)
+plot(x,y, ylim = c(-1.5,1.5),main=expression(paste("Penalized, ", rho, "=0")))
+lines(x_grid, y_grid0, col="firebrick1", lwd=2)
+plot(x,y,ylim = c(-1.5,1.5),main=expression(paste("Penalized, ", rho, "=1")))
+lines(x_grid, y_grid1, col="springgreen", lwd=2)
+plot(x,y,ylim = c(-1.5,1.5),main=expression(paste("Penalized, ", rho, "=10")))
+lines(x_grid, y_grid10, col="steelblue1", lwd=2)
+```
+
+\ 
+
+ \begin{itemize} \item[]
+For the penalized methods we can see that the $\rho$ is giving a better fit for the smaller $\rho$'s. We do note that all the penalized methods are just approximations rather than solutions. The pseudoinverse is actually a solution for $B\alpha=y$ and we see it going precisely through each point.
+ \end{itemize}
+
+
+\vspace{1 cm}
+
+
+
+
+ 
+ \begin{itemize}
+ \item[(3)] In this problem you will implement K-means on two datasets
+ 
+ \
+ 
+\begin{itemize}
+\item[(a)] Here is a fact I mentioned in class that is essential to the kmeans algorithm.  Suppose you are given $N$ points $x^{(i)}$ for $i=1,2,\dots,N$, with each point in $\mathbb{R}^n$.   Compute the point $m \in \mathbb{R}^n$ that minimizes the sum of squared distances from each $x^{(i)}$ to $m$:
+\begin{equation}
+\sum_{i=1}^N \|x^{(i)} - m\|^2
+\end{equation}
+Hint:  You can take the gradient of this expression, set it to zero, and solve for $m$.  You should find that $m$ is the mean of the $x^{(i)}$.  
+
+
+
+\ 
+
+\begin{itemize}
+\item[] 
+ \begin{align*}
+   \mathcal{L} =  \sum_{i=1}^N \left|\left|x^{(i)}-m\right|\right|^2 &=  \left(x^{(1)}_1-m_1 \right)^2 +  \left(x^{(1)}_2-m_2 \right)^2 + ... +  \left(x^{(N)}_n-m_n \right)^2
+ \end{align*}
+ 
+ \begin{align*}
+     \nabla \mathcal{L} &=      \begin{pmatrix} \\ -2 \left(x^{(1)}_1-m_1 \right) -2 \left(x^{(2)}_1-m_1 \right)  - ... -  2\left(x^{(N)}_1-m_1 \right)  \\[1em]
+     -2 \left(x^{(1)}_2-m_2 \right) -2 \left(x^{(2)}_2-m_2 \right)  - ... -  2\left(x^{(N)}_2-m_2 \right)  \\[1em]
+     \vdots \\[1em]
+     -2 \left(x^{(1)}_n-m_n \right) -2 \left(x^{(2)}_n-m_n \right)  - ... -  2\left(x^{(N)}_n-m_n \right)  \\[1.5em]
+     \end{pmatrix} 
+ \end{align*}
+ 
+ \
+ 
+ We set $\nabla \mathcal{L} = {\bm 0}$, and we solve for the $jth$ partial derivative, which will be the same as all the partials 1 through $n$.
+ 
+ \begin{align*}
+    0&= -2 \left(x^{(1)}_j-m_j \right) -2 \left(x^{(2)}_j-m_j \right)  - ... -  2\left(x^{(N)}_j-m_j \right) \\
+   0 &= -2 \sum_{i=1}^N \left(x^{(i)}_j-m_j \right) \\
+ 0   &= \sum_{i=1}^N  x^{(i)}_j  - \sum_{i=1}^N  m_j \\
+   0 &= \sum_{i=1}^N  x^{(i)}_j  - N  m_j \\
+   N  m_j   &= \sum_{i=1}^N  x^{(i)}_j   \\
+    m_j   &= \cfrac{1}{N} \sum_{i=1}^N  x^{(i)}_j   \\
+    \end{align*}
+ 
+\end{itemize}
+\end{itemize}
+\end{itemize}
+ 
+\
+
+ \begin{itemize} \item[]  \begin{itemize} \item[] 
+
+\item[(b)] Write a function \textbf{MyKmeans(x, K)} that accepts a data matrix $X$ and the number of kmeans $K$ and returns the solution to the kmeans problem as well as the number of iterations needed to reach the solution through the kmeans algorithm discussed in class.  (You can check your answer against R's kmeans function and, if you like, you can also include a parameter in \textbf{MyKmeans} that chooses a starting value for the assignments or means.)
+\end{itemize}
+\end{itemize}
+
+
+\
+
+
+```{r}
+MyKmeans<-function(x,K){
+	Norm <- function(w){  sqrt(sum(w^2))}
+	N<-nrow(x);	p<-ncol(x)
+	x<-cbind(x,matrix(NA,N,1));names(x)[ncol(x)]<-"Assignment"
+	meanz<-matrix(NA,N,p)
+	x[,ncol(x)]<-sample(1:K,N,replace=T)
+	mus<-matrix(NA,K,p);RAND<-sample(1:N,K);iter<-0
+	for(i in 1:K){ mus[i,]<- as.numeric( x[RAND[i],1:p] ) }
+
+	repeat{
+
+	STOP<-x[,3];iter<-iter+1
+
+	for( i in 1:K) { meanz[,i]<-apply(x[,1:p], 1, 
+		function(z) Norm(z-mus[i,]))^2 } 
+
+	x[,3]<-apply( meanz , 1, which.min)
+ 
+	for(i in 1:K){ mus[i,]<-colSums( x[which(x[,3] == i),1:p] ) / 
+		nrow( x[which(x[,3] == i),1:p]) }
+
+	if( all(x[,3] == STOP) == T ) {break} }
+	ASSIGNMENT<-x[,3];names(ASSIGNMENT)<-1:length(ASSIGNMENT)
+
+	newList <- list("Cluster Means" = mus, "Cluster Vector" = ASSIGNMENT,
+		"Iterations" = iter)
+	return(newList)
+	}
+
+MyKmeans(faithful,2);kmeans(faithful,2)
+```
+
+
+\ 
+
+
+
+ \begin{itemize} \item[]  \begin{itemize} \item[] 
+
+\item[(c)] Apply \textbf{MyKmeans} to the attached dataset \verb+synthetic kmeans data.csv+ with $K=2$.   This is an artifical dataset for which the sample points are in $\mathbb{R}^2$.   Plot the points of the dataset and the location of your 2 means at various iterations to see how the means move to their optimal location.
+\end{itemize}
+\end{itemize}
+
+\ 
+
+
+```{r}
+skd<-read.csv("synthetic kmeans data.csv")
+MyKmeans(skd,2)
+```
+
+\
+
+
+```{r echo=F }
+x<-read.csv("synthetic kmeans data.csv")
+K<-2
+	Norm <- function(w){  sqrt(sum(w^2))}
+
+	N<-nrow(x);	p<-ncol(x)
+	x<-cbind(x,matrix(NA,N,1));names(x)[ncol(x)]<-"Assignment"
+	meanz<-matrix(NA,N,p)
+	x[,ncol(x)]<-sample(1:K,N,replace=T);RAND<-c( 175, 192)
+	mus<-matrix(NA,K,p); 
+	for(i in 1:K){ mus[i,]<- as.numeric( x[RAND[i],1:p] ) }
+
+
+gglist<-list()
+
+for( L in 1:8){ 
+	for( i in 1:K) { meanz[,i]<-apply(x[,1:p], 1, 
+		function(z) Norm(z-mus[i,]))^2 } 
+
+	x[,3]<-apply( meanz , 1, which.min)
+ 
+	for(i in 1:K){ mus[i,]<-colSums( x[which(x[,3] == i),1:p] ) / 
+		nrow( x[which(x[,3] == i),1:p]) }
+	gglist[[L]]<-ggplot(x, aes(V1, V2)) + 
+		geom_point(aes(colour = factor(Assignment))) +
+		theme(legend.position="none")+ labs(title = 
+		paste0("Iteration ", L))+
+  		geom_point(aes(x=mus[1,1], y=mus[1,2]), colour="green" , size=4) +
+		geom_point(aes(x=mus[2,1], y=mus[2,2]), colour="black", size=4)
+}
+	
+
+source("multiplot.R")
+
+multiplot(gglist[[1]], gglist[[3]], gglist[[5]], 
+	gglist[[2]], gglist[[4]], gglist[[8]], cols=2   )
+```
+
+
+\ 
+
+
+ \begin{itemize} \item[]  \begin{itemize} \item[] 
+
+
+
+\item[(d)] The attached dataset \verb+tumor microarray data.csv+ comes from the Elements of Statistical Learning book.   Each row represents a cancer cell.  The first column, labeled \textbf{cancer}, gives the type of the cancer cell (e.g. RENAL, LEUKEMIA).   The rest of the columns are numeric and give measurement of different proteins in the cell.   The point here is to attempt to distinguish cancer cells by the level of proteins found in the cell.   Perform K-means using R's kmeans function (or Python's).   The cluster associated with a given mean are the sample points assigned to it.  Try different K, and determine if the clusters formed separate the cancers (e.g. certain cancers are found within certain clusters).   (See Elements of Statistical Learning Table $14.2$, which does this for $K=2$.)
+\end{itemize}
+\end{itemize}
+
+
+\ 
+ 
+```{r}
+tmd<-read.csv("tumor microarray data.csv")
+#not running it directly - lots of output. will run in loop below to get information for k = 2,3,4,5
+# MyKmeans(tmd[-1],2)
+tmdKM<-tmd
+for( i in 2:5){tmdKM[,ncol(tmdKM)+1]<-MyKmeans(tmd[-1],i)[[2]] }
+colnames(tmdKM)[(ncol(tmdKM)-3):(ncol(tmdKM) )]
+
+table( tmdKM[,c(1,ncol(tmdKM)-3)] )
+table( tmdKM[,c(1,ncol(tmdKM)-2)] )
+table( tmdKM[,c(1,ncol(tmdKM)-1)] )
+table( tmdKM[,c(1,ncol(tmdKM))] )
+```
+ 
+ \ 
+ 
+ 
+ For $K=2$, it looks like a lot of cancers can be put into a certain cluster. For $K=3,4,5$, we see Renal, colon, and NSCLC very surely in one cluster, and some of the other cancers spread across 2-3 clusters.
+ 
+ 
+ 
+
+
+
+
+
+
+
