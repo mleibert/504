@@ -1,0 +1,606 @@
+---
+title: "Homework 12 Solutions"
+output: pdf_document
+---
+
+# Problem 1
+
+## (a) Let $\eta$ be the parameters of the neural net (i.e. all the $\alpha$'s and $\beta$'s).  What is the dimension of $\eta$ in terms of $m$?
+
+
+```{r}
+setwd("G:\\math\\504")
+d <- read.table("nn.txt", header=T)
+plot(d$x1, d$x2, col=d$y+1, xlab="x1", ylab="x2",
+     xlim=c(-2,2), ylim=c(-2,2), cex=.5)
+```
+The red points represent $x^{(i)}$ in class $1$.   Class $1$ are points in an ellipse, as can be seen from the figure.
+
+## (b)   Write a function $NN(x, \eta, m)$ which takes a sample $x \in \mathbb{R}^2$ and a choice for $\eta$ and returns the values of $Y_1$ and $Y_2$.  (Hint:  It may be helpful to write functions such as \verb+get_alpha(eta, i)+, which given $\eta$ and $i$ returns $\alpha^{(i)}$,  and \verb+get_alpha_0(eta, i)+, which given $\eta$ and $i$  returns $\alpha^{(i)}_0$.  Using such functions will greatly simplify your code.)
+
+
+Concatenating the parameters forms $eta$:
+\begin{equation}
+\eta = (\alpha_0^{(1)}, \alpha^{(1)}, 
+        \alpha_0^{(2)}, \alpha^{(2)}
+        \alpha_0^{(3)}, \alpha^{(3)}
+        \alpha_0^{(4)}, \alpha^{(4)},
+        \beta_0^{(1)}, \beta^{(1)},
+        \beta_0^{(2)}, \beta^{(2)})
+\end{equation}
+Each $\alpha_0^{(i)}$ and $\beta_0^{(i)}$ represent a single coordinate.  Each $\alpha^{(i)}$ represents $2$ coordinates and each $\beta^{(i)}$ represents $4$ coordinates.  In total, we have $22$ coordinates, so $eta \in \mathbb{R}^{22}$.
+
+## (c)
+
+See the code in \verb+NN.R+   As an example, let's call $NN.R$ with arbirary values for $\eta$ and $x^{(i)}$.
+```{r}
+# this function checks if the get functions below work
+# I called it and the gets worked properly.
+check_get <- function(eta)
+{
+  eta = 1:22
+  # let's build eta from the gets and see if we get back
+  # eta
+  eta_test <- c()
+  for (i in 1:4) {
+    eta_test <- c(eta_test, get_alpha0(eta, i), 
+                  get_alpha(eta,i))
+  }
+  for (i in 1:2) {
+    eta_test <- c(eta_test, get_beta0(eta, i), 
+                  get_beta(eta,i))
+  }
+  
+  print("true eta")
+  print(eta)
+  print("computed eta")
+  print(eta_test)
+}
+
+# return alpha_0^i
+get_alpha0 <- function(eta, i)
+{
+  return (eta[3*i-2])
+}
+
+# collect all alpha0 as a vector
+get_alpha0_vector <- function(eta)
+{
+  vec <- rep(0, 4)
+  for (i in 1:4)
+    vec[i] <- get_alpha0(eta, i)
+  
+  return (vec)
+}
+
+# return beta_0^i
+get_beta0 <- function(eta, i)
+{
+  return (eta[5*i-4 + 12])
+}
+
+# return alpha^i
+get_alpha <- function(eta, i)
+{
+  return (c(eta[3*i-1], eta[3*i]))
+}
+
+# collect all alpha0 as a vector
+get_beta0_vector <- function(eta)
+{
+  vec <- rep(0, 2)
+  for (i in 1:2)
+    vec[i] <- get_beta0(eta, i)
+  
+  return (vec)
+}
+
+# for fast computation in NN, form a matrix with the alphas as columns
+get_alpha_matrix <- function(eta)
+{
+  # a bit of a hack, but...
+  all_alphas <- c(get_alpha(eta, 1), get_alpha(eta, 2),
+                  get_alpha(eta, 3), get_alpha(eta, 4))
+  m <- matrix(all_alphas, ncol=4)
+  return(m)
+}
+
+get_beta_matrix <- function(eta)
+{
+  # a bit of a hack, but...
+  all_betas <- c(get_beta(eta, 1), get_beta(eta, 2))
+  m <- matrix(all_betas, ncol=2)
+  return(m)
+}
+
+# return beta^i
+get_beta <- function(eta, i)
+{
+  return (c(eta[5*i-3 + 12], 
+            eta[5*i-2 + 12], 
+            eta[5*i-1 + 12], 
+            eta[5*i + 12]))
+}
+
+
+sigma <- function(z)
+{
+  return (1/(1 + exp(-z)))
+}
+
+# Here is a non-vectorized function to compute the NN, which runs slow
+# but with simple code. I didn't use this in the solutions.
+NN_non_vector <- function(eta, x)
+{
+  # first let's compute the Z's
+  Z <- rep(0, 4)
+  for (i in 1:4) {
+    alpha0 <- get_alpha0(eta, i)
+    alpha <- get_alpha(eta, i)
+    Z[i] <- sigma(alpha0 + sum(alpha*x))
+  }
+  
+  # compute the T's, T is used in R for TRUE, so I use TT,
+  # although using T will work as well.
+  TT <- rep(0, 2)
+  for (i in 1:2) {
+    beta0 <- get_beta0(eta, i)
+    beta <- get_beta(eta, i)
+    TT[i] <- sigma(beta0 + sum(beta*Z))
+  }
+  
+  
+  # compute the Y's
+  Y <- rep(0, 2)
+  denom <- exp(TT[1]) + exp(TT[2])
+  Y[1] <- exp(TT[1])/denom
+  Y[2] <- exp(TT[2])/denom
+  
+  return (Y)
+}
+
+# Here's a vectorized function to compute the neural net.
+NN <- function(eta, X)
+{
+  # first let's compute the Z.  Z will be a N by 4 matrix
+  alpha0 <- get_alpha0_vector(eta)
+  alpha <- get_alpha_matrix(eta)
+  
+  # the t(t(...)) is a trick to add the alph0 to the rows
+  Z_no_sigma <- t(t(X %*% alpha) + alpha0)
+  Z <- sigma(Z_no_sigma)
+  
+  # compute the T's, T is used in R for TRUE, so I use TT
+  # TT will be an N by 2 matrix
+  beta0 <- get_beta0_vector(eta)
+  beta <- get_beta_matrix(eta)
+  TT_no_sigma <- t(t(Z %*% beta) + beta0)
+  TT <- sigma(TT_no_sigma)
+  
+  # compute the Y's
+  denom <- rowSums(exp(TT))
+  Y <- exp(TT)/denom
+ 
+  return (Y)
+}
+
+#####################################################
+# likelihood functions
+logL <- function(eta, X, y, rho)
+{
+  Y <- NN(eta, X)
+  logvals <- ifelse(y == 1, log(Y[,2]), log(Y[,1]))
+  logL <- sum(logvals) - rho*sum(eta*eta)
+  
+  return (logL)
+}
+
+grad_logL <- function(eta, X, y, rho)
+{
+  g <- rep(0, 22)
+  base_value <- logL(eta, X, y, rho)
+  for (i in 1:22) {
+    eta_new <- eta
+    eta_new[i] <- eta_new[i] + 10^-7
+    g[i] <- logL(eta_new, X, y, rho) - base_value
+    g[i] <- g[i]/(10^-7)
+  }
+  
+  return (g)
+}
+
+##################################################
+norm <- function(z)
+{
+  return (sqrt(sum(z^2)))
+}
+# steepest ascent algorithm to train the neural net
+# X is the matrix of the samples
+train_NN <- function(start_eta, iterations, 
+                     rho, print_modulus=500,
+                     file="nn.txt", backtrack=T)
+{
+  time_it <- proc.time()
+  
+  d <- read.table(file, header=T)
+  X <- as.matrix(d[,1:2])
+  y <- d$y
+  
+  eta <- start_eta
+  for (i in 1:iterations) {
+    d <- grad_logL(eta, X, y, rho=rho)
+    d <- d/norm(d)
+    
+    s <- 1
+    if (backtrack)
+      while(logL(eta, X, y, rho=rho) > logL(eta+s*d, X, y, rho=rho))
+         s <- s/2
+    
+    eta <- eta + s*d
+    
+    # for timing/debugging
+    # let's print the log likelihood every 100th iteration
+    #if (i %% print_modulus == 0)
+    #  cat("iteration", i, ", log likelihood = "
+    #      , logL(eta, X, y, rho), "\n")
+    
+  }
+  
+  # show time, for setup..
+  #print(proc.time() - time_it)
+  
+  return (eta)
+}
+
+
+########################################################
+# given an alpha and p, predict the class of each sample
+classify_NN <- function(eta, p, X)
+{
+  Y2 <- NN(eta, X)
+  class <- ifelse(Y2[,2] >= p , 1, 0)
+  
+  return (class)
+}
+
+```
+
+```{r}
+eta <- 1:22
+
+# let's try an x that should classify as 0
+x <- c(1,2)
+NN(eta, matrix(x, nrow=1))
+
+# let's try an x that should classify as 1
+x <- c(0,0)
+NN(eta, matrix(x, nrow=1))
+```
+As required, NN returns probabilities, but with the given $\eta$, the probabilities do not properly classify the $x$.  
+
+## (d)
+
+The likelihood is the probability of the samples under a given $\eta$.  If $y_i = 0$ or $y_i = 1$, then the probability is given by $Y_1$ or $Y_2$, respectively, with $x^{(i)}$ as the input to the nueral net.
+\begin{equation}
+L(\eta) = \prod_{i=1}^N y_i Y_2 + (1-y_i) Y_1
+\end{equation}
+Then, the log-likelihood can be reduced to the following formula, following similar arguments we made for logistic regression:
+\begin{equation}
+\log L(\eta) = \sum_{i=1}^N y_i \log(Y_2) 
+              + (1-y_i) \log(Y_1)
+\end{equation}
+See \verb+NN.R+ for code implementing the likelihood
+and its gradient.
+```{r}
+# test the log likelihood and gradient
+# pick a random eta
+eta <- (runif(22) - .5)/10
+eta
+logL(eta, X=as.matrix(d[,1:2]), d$y, rho=0)
+grad_logL(eta, X=as.matrix(d[,1:2]), d$y, rho=0)
+```
+
+## (e) 
+
+Training the neural net means that we need to optimize the log likelihood.   I used a steepest ascent algorithm with backtracking.  Backtracking is not essential, good results can be achieved with a fixed step size of $s=0.1$ or  $s=1$. See \verb+NN.R+ for the steepest ascent code.  The \verb+train_NN+ function implements the steepest ascent.  Since the log likelihood is not convex for a neural net, it is important to try many starting points.  Here I ran $1000$ iterations for each of $10$ starting points.  I then show the results for the iteration with the highest and lowest likelihoods.
+
+Here are the $10$ runs
+
+```{r}
+##source("evaluate_NN.R")
+library(ggplot2)
+library(plyr)
+
+plot_classifications <- function(eta, p=seq(.1,.91,.1), N=5000)
+{
+  df <- plyr::adply(p, 1, function(cp) 
+                  create_classification_df(cp, eta, N))
+  
+  gp <- ggplot()
+  gp <- gp + geom_point(mapping=aes(x=x1, y=x2, col=y), 
+                       data=df, size=1)
+  gp <- gp + facet_wrap(~p, nrow=3)
+  gp <- gp + xlab(NULL) + ylab(NULL)
+  print(gp)
+}
+
+# assumes that p is a scalar
+create_classification_df <- function(p, eta, n)
+{
+  x1 <- 4*runif(n) - 2
+  x2 <- 4*runif(n) - 2
+  X <- matrix(c(x1, x2), ncol=2)
+  y_pred <- classify_NN(eta, p, X)
+  
+  p <- paste("p=", as.character(p), sep="")
+  return (data.frame(x1=x1, x2=x2, y=factor(y_pred), p=p, 
+                     stringsAsFactors = F))
+}
+```
+
+
+```{r, cache=T}
+#source("evaluate_NN.R")
+# I set the seed so this code is reproducible even with use of runif
+set.seed(123)
+n_runs <- 10
+output_eta <- matrix(0, ncol=22, nrow=n_runs)
+output_logL <- rep(0, n_runs)
+for (i in 1:n_runs) {
+  # for a starting eta, I chose each coordinate between [-.01,.01]
+  start_eta <- runif(22,-0.1,0.1)
+  out_eta <- train_NN(start_eta, iterations = 1000, rho=0, backtrack=T)
+  
+  output_eta[i,] <- out_eta
+  output_logL[i] <- logL(out_eta, X=as.matrix(d[,1:2]), y=d$y, rho=0)
+}
+output_logL
+```
+
+Notice that many of the log likelihoods end up around $820$, this is a local max with suboptimal fit as shown below.  I wrote a function using ggplot2 to visualize the classifier for different values of $p$.   See \verb+evaluate_NN.R+ for the code.  Here are classifiers for various $p$ for the highest log likelihood
+
+```{r, cache=T}
+#source("evaluate_NN.R")
+ind <- which.max(output_logL)
+best_eta <- output_eta[ind,]
+best_eta
+plot_classifications(eta=best_eta, N=2000)
+```
+
+And here are classifiers for various $p$ for the lowest log likelihood
+
+```{r, cache=T}
+#source("evaluate_NN.R")
+ind <- which.min(output_logL)
+worst_eta <- output_eta[ind,]
+worst_eta
+plot_classifications(eta=worst_eta, N=2000)
+```
+
+These results emphasize the importance of trying multiple starting points.  The fit with the lowest log-likelihood represents a local min that the neural net gets stuck in for many starting points!
+
+## (g)
+
+Here is results for $rho = .01$.  As before, I ran $10$ runs and picked the one with highest likelihood.  
+
+```{r, cache=T}
+#source("evaluate_NN.R")
+# I set the seed so this code is reproducible even with use of runif
+set.seed(123)
+n_runs <- 10
+output_eta <- matrix(0, ncol=22, nrow=n_runs)
+output_logL <- rep(0, n_runs)
+for (i in 1:n_runs) {
+  # for a starting eta, I chose each coordinate between [-.01,.01]
+  start_eta <- runif(22,-0.1,0.1)
+  out_eta <- train_NN(start_eta, iterations = 1000, rho=0.1, backtrack=T)
+  
+  output_eta[i,] <- out_eta
+  output_logL[i] <- logL(out_eta, X=as.matrix(d[,1:2]), y=d$y, rho=0.1)
+}
+ind <- which.max(output_logL)
+best_eta <- output_eta[ind,]
+plot_classifications(eta=best_eta, N=2000)
+```
+
+Here is $\rho = 1$.
+```{r, cache=T}
+#source("evaluate_NN.R")
+# I set the seed so this code is reproducible even with use of runif
+set.seed(123)
+n_runs <- 10
+output_eta <- matrix(0, ncol=22, nrow=n_runs)
+output_logL <- rep(0, n_runs)
+for (i in 1:n_runs) {
+  # for a starting eta, I chose each coordinate between [-.01,.01]
+  start_eta <- runif(22,-0.1,0.1)
+  out_eta <- train_NN(start_eta, iterations = 1000, rho=1, backtrack=T)
+  
+  output_eta[i,] <- out_eta
+  output_logL[i] <- logL(out_eta, X=as.matrix(d[,1:2]), y=d$y, rho=1)
+}
+ind <- which.max(output_logL)
+best_eta <- output_eta[ind,]
+plot_classifications(eta=best_eta, N=2000)
+```
+
+Here is $\rho = 10$
+```{r, cache=T}
+##source("evaluate_NN.R")
+# I set the seed so this code is reproducible even with use of runif
+set.seed(123)
+n_runs <- 10
+output_eta <- matrix(0, ncol=22, nrow=n_runs)
+output_logL <- rep(0, n_runs)
+for (i in 1:n_runs) {
+  # for a starting eta, I chose each coordinate between [-.01,.01]
+  start_eta <- runif(22,-0.1,0.1)
+  out_eta <- train_NN(start_eta, iterations = 1000, rho=10, backtrack=T)
+  
+  output_eta[i,] <- out_eta
+  output_logL[i] <- logL(out_eta, X=as.matrix(d[,1:2]), y=d$y, rho=10)
+}
+ind <- which.max(output_logL)
+best_eta <- output_eta[ind,]
+plot_classifications(eta=best_eta, N=2000)
+```
+
+# Problem 2
+
+Applying a logistic regression to the data is essentially the same as what we did for the o-ring dataset.  We fit the following likelihood function for $\alpha = (\alpha_0, \alpha_1, \alpha_2)$.
+\begin{align}
+\log L(\alpha) =&  \sum_{i=1}^N \bigg(
+        (1-y_i)(-\alpha_0 - \alpha_1 x_1^{(i)}
+                  - \alpha_2 x_2^{(i)})
+                 - \log(1 + \exp(-\alpha_0 - \alpha_1 x_1^{(i)}
+                  - \alpha_2 x_2^{(i)}))\bigg)
+\end{align}
+
+See the file \verb+LR.R+ for logistic regression code.  Below I time the fit, notice how much faster it is to fit the logistic regression model.  Also, since the log likelihood is convex, we need only try a single starting point.
+
+```{r}
+# computes -alpha_0 - \alpha_1 x_1 - ... - \alpha_4 x_4
+f <- function(alpha, x)
+{
+  return (-sum(alpha*c(1,x)))
+}
+
+# computes the gradient of f
+gradf <- function(alpha, x)
+{
+  return (-c(1,x))
+}
+
+# log likelihood function
+logL <- function(alpha, x1, x2, y) {
+  
+  total <- 0
+  n_samples <- length(y)
+  for (i in 1:n_samples) {
+    f_val <- f(alpha, c(x1[i], x2[i]))
+    total <- total + (1-y[i])* f_val - log(1 + exp(f_val)) 
+  }
+  return (total)
+}
+ 
+gradlogL <- function(alpha, x1, x2, y)
+{
+  # create a vector that will be the gradient
+  total <- rep(0, length(alpha))
+  
+  n_samples <- length(y)
+  for (i in 1:n_samples) {
+    f_val <- f(alpha, c(x1[i], x2[i]))
+    gradf_val <- gradf(alpha, c(x1[i], x2[i]))
+    total <- total + (1-y[i]) * gradf_val - exp(f_val)/(1+exp(f_val))*gradf_val
+  }
+  
+  return (total)
+}
+
+hesslogL <- function(alpha, x1, x2, y)
+{
+  # create a matrix that will be the gradient
+  total <- matrix(0, nrow=length(alpha), ncol=length(alpha))
+  
+  n_samples <- length(y)
+  for (i in 1:n_samples) {
+    f_val <- f(alpha, c(x1[i], x2[i]))
+    ratio <- exp(f_val)/(1 + exp(f_val))
+    gradf_val <- gradf(alpha, c(x1[i], x2[i]))
+    total <- total - ratio^2*gradf_val %*% t(gradf_val)
+  }
+  
+  return (total)
+}
+
+
+
+DampedNewton <- function(iterations)
+{
+  d <- read.table("nn.txt", header=T)
+  x1 <- d$x1
+  x2 <- d$x2
+  y <- d$y
+  
+  # use alpha for eta 
+  alpha <- rep(0, 3)
+  for (i in 1:iterations) {
+    g <- gradlogL(alpha, x1, x2, y)
+    H <- hesslogL(alpha, x1, x2, y)
+    d <- -solve(H, g)
+    
+    s <- 1
+    while(logL(alpha, x1, x2, y) > logL(alpha + s*d, x1, x2, y)) 
+      s <- s/2
+    
+    alpha <- alpha + s*d
+  }
+  
+  return (alpha)
+}
+
+###################################################
+# These functions implement the classifier based on alpha
+# and compute specificity and sensitivity
+
+
+
+# classify points
+classify_LR <- function(alpha, p, x1, x2)
+{
+  n_samples <- length(x1)
+  class <- rep(0, n_samples)
+  for (i in 1:n_samples) {
+    current_sample <- c(x1[i], x2[i])
+    current_prob <- 1/(1 + exp(f(alpha, current_sample)))
+    if (current_prob >= p)
+      class[i] <- 1
+  }
+  
+  return (class)
+}
+
+plot_LR_classifications <- function(alpha, p=seq(.1,.91,.1), N=5000)
+{
+  df <- plyr::adply(p, 1, function(cp) 
+    create_LR_classification_df(cp, alpha, N))
+  
+  gp <- ggplot()
+  gp <- gp + geom_point(mapping=aes(x=x1, y=x2, col=y), 
+                        data=df, size=1)
+  gp <- gp + facet_wrap(~p, nrow=3)
+  gp <- gp + xlab(NULL) + ylab(NULL)
+  print(gp)
+}
+
+# assumes that p is a scalar
+create_LR_classification_df <- function(p, alpha, n)
+{
+  x1 <- 4*runif(n) - 2
+  x2 <- 4*runif(n) - 2
+ 
+  y_pred <- classify_LR(alpha, p, x1, x2)
+  
+  p <- paste("p=", as.character(p), sep="")
+  return (data.frame(x1=x1, x2=x2, y=factor(y_pred), p=p, 
+                     stringsAsFactors = F))
+}
+```
+
+
+```{r, cache=T}
+
+t <- proc.time()
+alpha <- DampedNewton(iterations=300)
+alpha
+# show elapsed time
+proc.time() - t
+```
+The fit takes less than $2$ minutes.
+
+Let's visualize the classifier.  Notice now our classifier is linear, that is the boundary between the classes is a line (or hyperplane in a higher dimensional setting).  Clearly a logistic regression cannot capture an ellipse.
+
+```{r, cache=T}
+plot_LR_classifications(alpha, N=5000)
+```
