@@ -150,23 +150,23 @@ NN <- function(eta, X)
 
 #####################################################
 # likelihood functions
-logL <- function(eta, X, y, rho)
+logL <- function(eta, X, y )
 {
   Y <- NN(eta, X)
   logvals <- ifelse(y == 1, log(Y[,2]), log(Y[,1]))
-  logL <- sum(logvals) - rho*sum(eta*eta)
+  logL <- sum(logvals) #- rho*sum(eta*eta)
   
   return (logL)
 }
 
-grad_logL <- function(eta, X, y, rho)
+grad_logL <- function(eta, X, y )
 {
   g <- rep(0, 22)
-  base_value <- logL(eta, X, y, rho)
+  base_value <- logL(eta, X, y )
   for (i in 1:22) {
     eta_new <- eta
     eta_new[i] <- eta_new[i] + 10^-7
-    g[i] <- logL(eta_new, X, y, rho) - base_value
+    g[i] <- logL(eta_new, X, y ) - base_value
     g[i] <- g[i]/(10^-7)
   }
   
@@ -181,7 +181,7 @@ norm <- function(z)
 # steepest ascent algorithm to train the neural net
 # X is the matrix of the samples
 train_NN <- function(start_eta, iterations, 
-                     rho, print_modulus=500,
+                      print_modulus=500,
                      file="nn.txt", backtrack=T)
 {
   time_it <- proc.time()

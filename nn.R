@@ -32,30 +32,30 @@ NN<-function(x,eta,m){
 }
  
 
+logL<-function(x,y,eta,m){
+	Y<-NN(x,eta,m)
+	return( sum( (1-y)*log(Y[,1]) + ( y)*log(Y[,2])  ) )	}
+
+
 gradL<-function(eta,x,y,m ){
 		
 	y<-as.matrix(y)
 	dimeta<-m*(dim(x)[2]+1)+2*(1+m)
 	gradf<-rep(NA,dimeta)
 
-	Y<-NN(x,eta,m)
+	Y<-NNml(x,eta,m)
 	ETA<-eta
 
-	logl<-sum( (1-y)*log(Y[,1]) + ( y)*log(Y[,2])  )
+	logl<-mllogL(x,y,eta,m)
+	
 	for( i in 1:dimeta){
-		
+		ETA <-eta
 		ETA[i]<-eta[i]+(10^-6)
 			
-		Yp<-NN(x,ETA,m)
-		
-		gradf[i]<-(sum( (1-y)*log(Yp[,1]) + ( y)*log(Yp[,2])  ) - 
-			logl  ) / (10^-6)	}
+		gradf[i]<- (mllogL(x,y,ETA,m) -	logl  ) / (10^-6)	}
 	return(gradf)
 }
 
-logL<-function(x,y,eta,m){
-	Y<-NN(x,eta,m)
-	return( sum( (1-y)*log(Y[,1]) + ( y)*log(Y[,2])  ) )	}
 
 Norm <- function(w){  sqrt(sum(w^2))}
 
