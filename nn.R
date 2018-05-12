@@ -15,18 +15,16 @@ X
 
 NN<-function(x,eta,m){
 	
-	sigmoid<-function(a,w){	(1+exp(-a[1]-	
-		apply(w,1, function(w)  t(a[-1])%*%w )	))^(-1)}
-
 	X<-as.matrix(x)
 
 	Alpha<-matrix(eta[1:prod( c(dim(X)[2] + 1, m ) )], dim(X)[2] + 1 , m)
-	Z<-apply(Alpha,2, function(v) sigmoid(v,X))
+	Z<-apply(Alpha, 2, function(w) 1/(1+exp(- w[1] -   X %*% w[-1]  )) ) 
 
 	Beta<-matrix( eta[(prod(dim(Alpha))+1):length(eta) ], dim(Z)[2]+1, 2)
 	 
-	T<-apply(Beta,2, function(v) sigmoid(v,Z))
-	Y<- apply(T,2, function(x) exp(x))
+	#TT<-apply(Beta,2, function(v) sigmoid(v,Z))
+	TT<-apply(Beta, 2, function(w) 1/(1+exp(- w[1] - Z %*% w[-1]  )) ) 
+	Y<- apply(TT,2, function(x) exp(x))
 	Y<-Y/rowSums(Y)
 	return(Y)
 }

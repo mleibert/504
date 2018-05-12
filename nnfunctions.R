@@ -1,5 +1,4 @@
 
-
 NN<-function(x,eta,m){
 	
 	X<-as.matrix(x)
@@ -39,36 +38,5 @@ gradL<-function(x,y,eta,m ){
 }
 
 
-Hfd<-function(x,y,eta,m,d,epi=10^-2 ){
+Hfd<-function(x,y,eta,m,d,epi=10^-3 ){
 	(gradL(x,y,eta+d*epi,m)-gradL(x,y,eta,m))/(epi)}
-
-
- 
-
-A<-matrix(c(2,-1,0,-1,2,-1,0,-1,2),3,3,byrow=T)
-b<-matrix(c(2,2,6),3,1)
-solve(A,b)
-AA<-matrix(c(2,2,2,5 ),2,2,byrow=T)
-bb<-matrix(c(6,3),2,1)
-solve(AA,bb)
-eigen(A)
-
-x<-rep(0 ,dim(A)[1])
- d<- r<- b-(A%*%x)
-
-repeat{
-Alpha<-as.numeric(  (t(r)%*%r)/(t(d)%*%A%*%d) )
-xnext<-x+Alpha*d
-rnext<-r-Alpha*A%*%d
-if( all(as.numeric( round(rnext,10) ) == 0) == T ){print(xnext)}
-if( all(as.numeric( round(rnext,10) ) == 0) == T ){break}
-Beta<- as.numeric((t(rnext)%*%rnext)/(t(r)%*%r))
-dnext<-rnext+Beta*d
-d<-dnext;r<-rnext;x<-xnext 
-}
-xnext 
-
-
-
-
-

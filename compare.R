@@ -7,17 +7,16 @@ nn<-read.table("nn.txt",header=T)
 X<-as.matrix(nn[,-3])
 #p <- ggplot(nn, aes(x1, x2)) + geom_point(aes(colour = factor(y))) +   
 #  theme(legend.position="bottom")
-#p 
+  
 
 
  
 
-NNml<-function(x,eta,m){
+NN<-function(x,eta,m){
 	
 	X<-as.matrix(x)
 
 	Alpha<-matrix(eta[1:prod( c(dim(X)[2] + 1, m ) )], dim(X)[2] + 1 , m)
-	#Z<-apply(Alpha,2, function(v) sigmoid(v,X))
 	Z<-apply(Alpha, 2, function(w) 1/(1+exp(- w[1] -   X %*% w[-1]  )) ) 
 
 	Beta<-matrix( eta[(prod(dim(Alpha))+1):length(eta) ], dim(Z)[2]+1, 2)
