@@ -1,6 +1,6 @@
 rm(list = ls())
  setwd("G:\\math\\504")
-options(scipen=999)
+#options(scipen=999)
  #require("ggplot2")
 
 bones<-read.table("BoneMassDataF.txt",header=T)
@@ -27,27 +27,18 @@ Fapprox<-function(n,j,k,x){
 
 mat<-matrix(NA,6,6)
 
-Fapprox(10000,5,0,bones[,2])
 
-
-sum( Fx(0,a+(i+1)*h)*Fx(5,a+(i+1)*h)*h )
-
-
-
-for( J in 0:5){
-for( K in 0:5){ 	mat[J+1,K+1]<-Fapprox(10000,J,K,bones[,2]) }}
+for( J in 0:5){ for(K in 0:5){mat[J+1,K+1]<-Fapprox(10000,J,K,bones[,2]) }}
 mat
 
 Norm <- function(w){  sqrt(sum(w^2))}
-diag(mat)[2]
-
-
+ 
 Gapprox<-function(n,j,k,x){
 	
-	coef<-(1/sqrt( diag(mat) )) 
+	coeff<-(1/sqrt( diag(mat) )) 
 	Fx<-function(l,x){ if(l != 0) {
-		return( coef[l+1]* cos( (2*pi*l*(x-9.4 ) ) /(25.55-9.4 )) )
-		} else  {return( coef[l+1]* rep(1,length(x) ))} }
+		return( coeff[l+1]* cos( (2*pi*l*(x-9.4 ) ) /(25.55-9.4 )) )
+		} else  {return( coeff[l+1]* rep(1,length(x) ))} }
 
 	a=min(x);b=max(x)
 	
@@ -58,9 +49,51 @@ Gapprox<-function(n,j,k,x){
 Gapprox(10000,0,0,bones[,2])
 
 matt<-matrix(NA,6,6)
-
-for( J in 0:5){
-for( K in 0:5){ 	matt[J+1,K+1]<-Gapprox(10000,J,K,bones[,2]) }}
+for( J in 0:5){for( K in 0:5){ matt[J+1,K+1]<-Gapprox(10000,J,K,bones[,2]) }}
 diag(matt )
 
+#### b
+
+
+
+Fx<-function(w,x){   
+	mat<-matrix(NA,6,6)
+	for( J in 0:5){ for(K in 0:5){
+		mat[J+1,K+1]<-Fapprox(10000,J,K,x) }}
+	
+	ncoef<-(1/sqrt( diag(mat) )) 
+	if(w == 0 ) {return(   rep(1,length(x) ))  } else {
+	return( ncoef[w+1]* cos( (2*pi*w*(x-9.4 ) ) /(25.55-9.4 )) )
+		} }
  
+
+Fx(0,bones$age)
+
+model_matrix <- function(x) { 
+	nx <- length(x)
+	m <- cbind(Fx(0,x),Fx(1,x), Fx(2,x), Fx(3,x), Fx(4,x), Fx(5,x) )
+	colnames(m )<-NULL
+	return(m)	}
+
+B<- model_matrix(bones$age)
+Alpha <- solve(t(B) %*% B, t(B) %*% as.matrix(bones[,4]));Alpha
+
+x_grid <- seq(min(bones$age), max(bones$age), .01)
+B_grid <- model_matrix(x_grid)
+y_grid <- B_grid %*% Alpha
+ 
+par(mar=c(4.1,4.1,1,1))
+plot(bones$age, bones[,4], ylim=c(min(bones[,4])-.02,max(bones[,4]) + .02) )
+lines(x_grid, y_grid, col="red", lwd=2)   
+
+
+
+
+
+
+
+
+
+
+
+

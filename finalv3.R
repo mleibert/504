@@ -21,16 +21,13 @@ head(NN(nn[,-3],theta,4))
 logL(nn[,-3],nn[,3],theta,4)
 gradL(nn[,-3],nn[,3],theta,4)
 
-#Blpha<-c(-3.7748365, 2.1178734, 0.3139542, -5.5415006, -.5958018, 
-#5.8168459, 11.0561352, 0.2074085, 14.0207743, 25.2868297, 16.0428078, 
-#3.8300725, 15.9792114, 23.4815794, 23.2210775, -13.5097426, -12.2073593, 
-#-18.6510642, -27.0546378, -27.4979835, 15.2350215, 14.7081561)
+ 
 
-lambda=50
+lambda=4
 
-#########start
+#########		start		#########
 #system.time(
-for( k in 1:3000){
+for( k in 1:1000){
 b<- (-gradL(nn[,-3],nn[,3],theta,4) )
 
 x<-rep(0,length(b))#gradL(nn[,-3],nn[,3],theta,4) / lambda
@@ -46,13 +43,13 @@ rnext<-r-Alpha*( hfd  )
 #if( all(as.numeric( round(rnext,10) ) == 0) == T ){print(xnext)}
 #store p in lsit for future BACKTRACKING
 #if( all(as.numeric( round(rnext,10) ) == 0) == T ){break}
-plist[[i]]<-xnext
+#plist[[i]]<-xnext
 Beta<- as.numeric((t(rnext)%*%rnext)/(t(r)%*%r))
 dnext<-rnext+Beta*d
 d<-dnext;r<-rnext;x<-xnext
 }
 
-iter=iter+1
+#iter=iter+1
 p=xnext
 oldtheta=theta
 theta=xnext+theta
@@ -64,7 +61,7 @@ if( logL(nn[,-3],nn[,3],theta,4) > logL(nn[,-3],nn[,3],oldtheta,4)  ){
 	theta=oldtheta;lambda = 200 }
 
 print(lambda)
-}#)
+} #)
 
  
 
@@ -87,11 +84,12 @@ test$y3<- ifelse( test[,1]>.5 , 0,1)
 names(test)[3:4]<-c("x1","x2")
 test$Y<-nn$y
 test$Yd<-as.factor(test$y3+test$Y)
-
+ 
 head(test)
 library(RColorBrewer)
 cols <- brewer.pal(3,"Set1")
 cols <- c("#e41a1c","black","#bebada")
+levels(test$Yd) <- list(0="0", 1="2", 2="1")
 
 names(cols ) <- levels(test$Yd)
 colScale <- scale_colour_manual(name = "Yd",values = cols)
