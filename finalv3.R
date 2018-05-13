@@ -59,8 +59,7 @@ theta=xnext+theta
 print(logL(nn[,-3],nn[,3],theta,4))
 if( logL(nn[,-3],nn[,3],theta,4) < logL(nn[,-3],nn[,3],oldtheta,4) ){
 	lambda = lambda*9/10 } else { lambda = lambda*1.5 }
-if( lambda < 5 ){	lambda = 10 }
-if( lambda < 5 ){	lambda = 10 }
+if( lambda < 2 ){	lambda = 10 }
 if( logL(nn[,-3],nn[,3],theta,4) > logL(nn[,-3],nn[,3],oldtheta,4)  ){	
 	theta=oldtheta;lambda = 100 }
 
