@@ -61,18 +61,18 @@ if( logL(nn[,-3],nn[,3],theta,4) < logL(nn[,-3],nn[,3],oldtheta,4) ){
 	lambda = lambda*9/10 } else { lambda = lambda*1.5 }
 if( lambda < 2 ){	lambda = 10 }
 if( logL(nn[,-3],nn[,3],theta,4) > logL(nn[,-3],nn[,3],oldtheta,4)  ){	
-	theta=oldtheta;lambda = 100 }
+	theta=oldtheta;lambda = 1000 }
 
 print(lambda)
 }
 
  
 
-theta=read.csv("theta.csv")[,2]
-
+#theta=read.csv("theta.csv")[,2]
+#write.csv(theta,"theta.csv")
 NN(nn[,-3],theta,4)
 
-logL(nn[,-3],nn[,3],theta,4)
+logL(nn[,-3],nn[,3],oldtheta,4)
 logL(nn[,-3],nn[,3],a,4)
 
 require(ggplot2)
@@ -81,10 +81,6 @@ test<-as.data.frame(	( NN(nn[,-3],theta,4 )	))
 test<-cbind(test,nn[,-3])
 test$y3<- ifelse( test[,1]>.5 , 0,1)
 names(test)[3:4]<-c("x1","x2")
-
-p <- ggplot(nn, aes(x1, x2)) + geom_point(aes(colour = factor(y))) +   
-  theme(legend.position="bottom")
-p
 
 ggplot(test, aes(x1, x2)) + geom_point(aes(colour = factor(y3))) +
            theme(legend.position="bottom")+ ggtitle("Test")   
