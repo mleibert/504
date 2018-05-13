@@ -4,7 +4,7 @@ setwd("G:\\math\\504")
 #require(ggplot2,quietly=T)
 source("nnfunctions.R");source("multiplot.R")
 nn<-read.table("nn.txt",header=T)	
-X<-as.matrix(nn[,-3])
+#X<-as.matrix(nn[,-3])
 #p <- ggplot(nn, aes(x1, x2)) + geom_point(aes(colour = factor(y))) +   
 #  theme(legend.position="bottom")
 #p 
@@ -15,7 +15,6 @@ set.seed(2221)
 a<-runif(22,-.1,.1)
 
 theta<- runif(22,-.1,.1)
-lambda=0
 
 head(NN(nn[,-3],theta,4))
 logL(nn[,-3],nn[,3],theta,4)
@@ -56,7 +55,7 @@ theta=xnext+theta
 print(logL(nn[,-3],nn[,3],theta,4))
 if( logL(nn[,-3],nn[,3],theta,4) < logL(nn[,-3],nn[,3],oldtheta,4) ){
 	lambda = lambda*9/10 } else { lambda = lambda*1.5 }
-if( lambda < 2 ){	lambda = 4 }
+if( lambda < 1 ){	lambda = 2 }
 if( logL(nn[,-3],nn[,3],theta,4) > logL(nn[,-3],nn[,3],oldtheta,4)  ){	
 	theta=oldtheta;lambda = 200 }
 
