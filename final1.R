@@ -2,11 +2,10 @@ rm(list = ls())
  setwd("G:\\math\\504")
 #options(scipen=999)
  #require("ggplot2")
-
 bones<-read.table("BoneMassDataF.txt",header=T)
 bones<-bones[which(bones[,3] == "female"),]
  
-# x=bones[,2];a=min(bones[,2]);b=max(bones[,2]);n=10000
+# x=bones[,2];a=min(bones[,2]);b=max(bones[,2]);n=10000;m=6
 
 Fapprox<-function(n,j,k,x){
 	
@@ -30,6 +29,8 @@ mat<-matrix(NA,6,6)
 
 for( J in 0:5){ for(K in 0:5){mat[J+1,K+1]<-Fapprox(10000,J,K,bones[,2]) }}
 mat
+
+
 
 Norm <- function(w){  sqrt(sum(w^2))}
  
@@ -58,6 +59,7 @@ diag(matt )
 
 Fx<-function(w,x){   
 	mat<-matrix(NA,6,6)
+	#need this matrix for the normalizing Coefficients
 	for( J in 0:5){ for(K in 0:5){
 		mat[J+1,K+1]<-Fapprox(10000,J,K,x) }}
 	
@@ -67,7 +69,7 @@ Fx<-function(w,x){
 		} }
  
 
-Fx(0,bones$age)
+ 
 
 model_matrix <- function(x) { 
 	nx <- length(x)
@@ -75,11 +77,11 @@ model_matrix <- function(x) {
 	colnames(m )<-NULL
 	return(m)	}
 
-B<- model_matrix(bones$age)
+B<- model_matrix(bones$age,5)
 Alpha <- solve(t(B) %*% B, t(B) %*% as.matrix(bones[,4]));Alpha
 
 x_grid <- seq(min(bones$age), max(bones$age), .01)
-B_grid <- model_matrix(x_grid)
+B_grid <- model_matrix(x_grid,5)
 y_grid <- B_grid %*% Alpha
  
 par(mar=c(4.1,4.1,1,1))

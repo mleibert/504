@@ -45,30 +45,31 @@ Hfd<-function(x,y,eta,m,d,epi=10^-2 ){
 
  
 
-A<-matrix(c(2,-1,0,-1,2,-1,0,-1,2),3,3,byrow=T)
-b<-matrix(c(2,2,6),3,1)
-solve(A,b)
-AA<-matrix(c(2,2,2,5 ),2,2,byrow=T)
-bb<-matrix(c(6,3),2,1)
+AA<-matrix(c(2,-1,0,-1,2,-1,0,-1,2),3,3,byrow=T)
+bb<-matrix(c(2,2,6),3,1)
 solve(AA,bb)
-eigen(A)
-
-x<-rep(0 ,dim(A)[1])
- d<- r<- b-(A%*%x)
-
-repeat{
-Alpha<-as.numeric(  (t(r)%*%r)/(t(d)%*%A%*%d) )
-xnext<-x+Alpha*d
-rnext<-r-Alpha*A%*%d
-if( all(as.numeric( round(rnext,10) ) == 0) == T ){print(xnext)}
-if( all(as.numeric( round(rnext,10) ) == 0) == T ){break}
-Beta<- as.numeric((t(rnext)%*%rnext)/(t(r)%*%r))
-dnext<-rnext+Beta*d
-d<-dnext;r<-rnext;x<-xnext 
-}
-xnext 
+eigen(AA)
 
 
-
+CG<-function(A,b){
+	x<-rep(0 ,dim(A)[1])
+	d<- r<- b-(A%*%x)
+	iter=0
+	repeat{
+		iter=iter+1
+		Alpha<-as.numeric(  (t(r)%*%r)/(t(d)%*%A%*%d) )
+		xnext<-x+Alpha*d
+		rnext<-r-Alpha*A%*%d
+		if( all(as.numeric( round(rnext,10) ) == 0) == T ){break}
+		Beta<- as.numeric((t(rnext)%*%rnext)/(t(r)%*%r))
+		dnext<-rnext+Beta*d
+		d<-dnext;r<-rnext;x<-xnext 
+	}
+	return(list(x=xnext,iterations=iter)) }
+  
+CG(AA,bb)
+dat<-mtcars[,c(1,3:6)]
+dat<-var(dat)
+eigen(dat)
 
 
