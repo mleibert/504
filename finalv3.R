@@ -26,7 +26,7 @@ lambda=4
 
 #########		start		#########
 #system.time(
-for( k in 1:1000){
+for( k in 1:10000){
 b<- (-gradL(nn[,-3],nn[,3],theta,4) )
 
 x<-rep(0,length(b))#gradL(nn[,-3],nn[,3],theta,4) / lambda
@@ -55,9 +55,9 @@ theta=xnext+theta
 print(logL(nn[,-3],nn[,3],theta,4))
 if( logL(nn[,-3],nn[,3],theta,4) < logL(nn[,-3],nn[,3],oldtheta,4) ){
 	lambda = lambda*9/10 } else { lambda = lambda*1.5 }
-if( lambda < 1 ){	lambda = 2 }
+if( lambda < 10^-3 ){	lambda =  10^-2 }
 if( logL(nn[,-3],nn[,3],theta,4) > logL(nn[,-3],nn[,3],oldtheta,4)  ){	
-	theta=oldtheta;lambda = 200 }
+	theta=oldtheta;lambda = 1110 }
 
 print(lambda)
 } #)
