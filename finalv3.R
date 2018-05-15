@@ -82,13 +82,21 @@ test<-cbind(test,nn[,-3])
 test$y3<- ifelse( test[,1]>.5 , 0,1)
 names(test)[3:4]<-c("x1","x2")
 test$Y<-nn$y
-test$Yd<-as.factor(test$y3+test$Y)
+test$Yd<- (test$y3+test$Y)
  
 head(test)
-library(RColorBrewer)
-cols <- brewer.pal(3,"Set1")
-cols <- c("#e41a1c","black","#bebada")
-levels(test$Yd) <- list(0="0", 1="2", 2="1")
+
+ncol(test)
+
+test[which(test[,7] == 1),7]<-3
+test[which(test[,7] == 3), ]
+test[which(test[,7] == 2), 7]<-1
+test$Yd<- as.factor(test$Yd)
+
+
+
+cols <- c("#e41a1c","#bebada","black")
+ 
 
 names(cols ) <- levels(test$Yd)
 colScale <- scale_colour_manual(name = "Yd",values = cols)
@@ -116,4 +124,23 @@ names(test)[3:4]<-c("x1","x2")
 p1 <- ggplot(test, aes(x1, x2)) + geom_point(aes(colour = factor(y1))) +
  ylim(-2.5, 2.5) + xlim( -2.5,2.5 ) + ggtitle("p = 0.5") +
  theme(legend.position="bottom")
+
+
+
+
+
+
+
+
+x1<-matrix(4*runif(20000 )-2, 10000,2);test<-as.data.frame((NN(x1,theta ,4)))
+test<-cbind(test,x1);test$y1<- ifelse( test[,1]>.5 , 0,1)
+test$y2<- ifelse( test[,1]>.7 , 0,1);test$y3<- ifelse( test[,1]>.3 , 0,1)
+names(test)[3:4]<-c("x1","x2")
+cols <- c("#e41a1c","#bebada");names(cols ) <- levels(test$Y1)
+colScale <- scale_colour_manual(name = "Y1",values = cols)
+
+p1 <- ggplot(test, aes(x1, x2)) + geom_point(aes(colour = factor(y1))) +
+ ylim(-2.5, 2.5) + xlim( -2.5,2.5 ) + ggtitle("p = 0.5") +
+ theme(legend.position="bottom") + colScale
+
 

@@ -48,7 +48,7 @@ Hfd<-function(x,y,eta,m,d,epi=10^-2 ){
 AA<-matrix(c(2,-1,0,-1,2,-1,0,-1,2),3,3,byrow=T)
 bb<-matrix(c(2,2,6),3,1)
 solve(AA,bb)
-eigen(AA)
+eigen(AA)$values
 
 
 CG<-function(A,b){
@@ -68,8 +68,14 @@ CG<-function(A,b){
 	return(list(x=xnext,iterations=iter)) }
   
 CG(AA,bb)
+
 dat<-mtcars[,c(1,3:6)]
 dat<-var(dat)
-eigen(dat)
+eigen(dat)$values
+bb<-rpois(dim(dat)[1],3)
+solve(dat,bb)
+
+CG(dat,bb)
+
 
 

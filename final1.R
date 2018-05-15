@@ -24,7 +24,7 @@ Fapprox<-function(n,j,k,x){
 	#newList <- list("one" = qq, "two" = QQ);return(newList)
 }
 
-mat<-matrix(NA,6,6)
+mattt<-matrix(NA,6,6)
 
 
 for( J in 0:5){ for(K in 0:5){mat[J+1,K+1]<-Fapprox(10000,J,K,bones[,2]) }}
@@ -58,11 +58,7 @@ diag(matt )
 
 
 Fx<-function(w,x){   
-	mat<-matrix(NA,6,6)
 	#need this matrix for the normalizing Coefficients
-	for( J in 0:5){ for(K in 0:5){
-		mat[J+1,K+1]<-Fapprox(10000,J,K,x) }}
-	
 	ncoef<-(1/sqrt( diag(mat) )) 
 	if(w == 0 ) {return(   rep(1,length(x) ))  } else {
 	return( ncoef[w+1]* cos( (2*pi*w*(x-9.4 ) ) /(25.55-9.4 )) )
@@ -71,14 +67,20 @@ Fx<-function(w,x){
 
  
 
-model_matrix <- function(x) { 
+model_matrix <- function(x,m) { 
 	nx <- length(x)
-	m <- cbind(Fx(0,x),Fx(1,x), Fx(2,x), Fx(3,x), Fx(4,x), Fx(5,x) )
-	colnames(m )<-NULL
-	return(m)	}
+	A<-matrix(NA,nx,m+1)
+	for( i in 0:m){
+		A[,(i+1)] <- Fx(i,x)  }
+	colnames(A )<-NULL
+	return(A)	}
 
-B<- model_matrix(bones$age,5)
-Alpha <- solve(t(B) %*% B, t(B) %*% as.matrix(bones[,4]));Alpha
+
+
+B<- model_matrix(bones$age,1000)
+dim(B)
+rho=.100
+Alpha <- solve(t(B) %*% B + rho*Omega, t(B) %*% as.matrix(bones[,4])) 
 
 x_grid <- seq(min(bones$age), max(bones$age), .01)
 B_grid <- model_matrix(x_grid,5)

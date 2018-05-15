@@ -8,12 +8,44 @@ header-includes:
    - \usepackage{cancel}
 ---
 
+Michael Leibert
+
+Math 504
+
+Final Exam 
+
+\ 
+
+\begin{itemize}
+\item[1.] This problem aims to review several ideas - the $Ax=b$ problem, penalty methods, quadratic optimization, basis functions, positive definite matrices, projection, orthogonality - within the context of Fourier transforms.   The essential idea is that every function $f(x)$ with domain on some interval $[0,L]$ can be written in terms of an infinite number of cosine basis functions as follows:
+\begin{equation*}
+f(x) = \alpha_0 + \sum_{j=1}^\infty \alpha_j \cos\left(\frac{2 \pi j x}{L}\right)
+\end{equation*}
+where $x \in [0,L]$.   Sauer alludes to this in section $11.1$ where he discusses the discrete cosine transform.   If you want to read more, the attached notes of David Wilkins (especially see sections $8.2$ and $8.4$)  are nice.
+\ 
+
+
+In this problem, we will not deal with an infinite expansion, but will instead consider a basis composed of $n$ of the cosine basis functions.  Consider, as in previous homeworks, the female samples of the BoneMass dataset.  Let $N$ be the number of samples, i.e $N=259$.   Let $b_j(x) = \cos\left(2 \pi j (x - x_\text{min})/(x_\text{max} - x_\text{min})\right)$ where $x_\text{min}$ and $x_\text{max}$ are the minimum and maximum age values in the dataset.  Let $b_0(x) = 1$.  
+\begin{equation*}
+f(x) = \sum_{j=0}^n \alpha_j b_j(x)
+\end{equation*}
+\end{itemize}
+
+\ 
+
+
+\begin{itemize}
+\item[(a)] Consider the basis functions $b_0(x), b_1(x), \dots, b_5(x)$ and let $\mathcal{F}$ be the linear function space spanned by these $6$ functions.  We have discussed orthonormal vectors, but we have not discussed orthonormal functions.   To do so, we need to introduce a norm and a dot-product on $\mathcal{F}$. The most common such dot-product is formed by integrating two functions against each other.   Specifically, let $g(x), h(x) \in \mathcal{F}$.  Then define the dot product, written $<g, h>$ by
+\begin{equation*}
+<g, h> = \int_{x_{\text{min}}}^{x_{\text{max}}} g(x) h(x) dx,
+\end{equation*}
+and the associated norm given by $\|g\|^2 = <g,g>$.  This norm is known as the $L^2$ norm.  Using this $L^2$ norm and dot-product, use numerical integration to show that the $b_i(x)$ are orthogonal and compute the coefficients necessary to normalize them.  Write your own numerical integrator.  Using numerical integration, you will find that $<b_i, b_j>$ for $i \ne j$ is small but not $0$ due to round-off error.  Explain why the value you get is small enough to be attributed to round-off error.  
+\end{itemize}
+ 
+\ 
 
 ```{r}
-rm(list = ls())
- setwd("G:\\math\\504")
-options(scipen=999)
- #require("ggplot2")
+rm(list = ls()); setwd("G:\\math\\504");options(scipen=999)
 bones<-read.table("BoneMassDataF.txt",header=T)
 bones<-bones[which(bones[,3] == "female"),]
 
@@ -41,6 +73,15 @@ Fapprox(6,n=10000, bones$age)
 
 ```
 
+\  
+
+\begin{itemize} \item[]
+We can see from out output matrix that the $b_i(x)$'s are orthogonal, but not orthonormal.
+\end{itemize} 
+
+\ 
+
+
 ```{r}
 Gapprox<-function(n,j,k,x){
 	
@@ -61,10 +102,48 @@ matt;diag(matt )
 
 ```
 
+\ 
+
+\begin{itemize} \item[]
+We have computed the coefficients necessary to normalize them.
+
+\  
+
+
+Error for Riemann integration:
+ 
+ \begin{align*}
+     \text{error} &= \left| \int_a^{a+h} f(x) \ \text{d}x - f(a)\cdot h \right| \\
+     &\approx \left| \int_a^{a+h} \Big( f(a) + f'(a)(x-a) \Big) \ \text{d}x - f(a)\cdot h \right| \\
+     &=\left| f(a) \cdot h +  f'(a) \cfrac{(x-a)^2}{2} \  \bigg|_a^{a+h}  - f(a)\cdot h  \right| \\
+     &= f'(a)  \cfrac{h^2}{2} \\
+     & \approx h^2 \text{ (error for one rectangle) }
+ \end{align*}
+ 
+  Riemann integration has an error of roughly $\left(h^2\right) \left(\cfrac{b-a}{h}\right) = (b-a)\cdot h$, where $h$ is the grid width.
+  
+  \ 
+  
+  The total error is about 0.02608486 so we can attribute the error we are getting to roundoff error.
+\end{itemize} 
+
+
+\  
 
 \ 
 
+
+\begin{itemize}
+\item[(b)] Continuing from (a), find $f(x) \in \mathcal{F}$ that best fits the data using least squares as the loss function.  Justify each step in your computation.  Plot the data and resulting fit.   Explain how determining $f(x)$ corresponds to (i) a linear regression (ii) projection of a vector onto a linear space (iii) quadratic optimization.
+\end{itemize}
+
+
+\ 
+
+\begin{itemize} \item[] 
 In this step, I am writing a function for any general $b_j$. If \text{w} is 1,...,5, I obtain the normalizing coefficients, apply them to the $b_j = 1,...,5$, and return the specified $b_j$. If 0 is given I return 1's. 
+\end{itemize} 
+
 
 \ 
 
@@ -81,36 +160,28 @@ Fx<-function(w,x){
 
 \ 
 
+\begin{itemize} \item[] 
 In this step I form the model matrix. By using our function \text{Fx} above. Then I solve for $\alpha$.
+\end{itemize} 
 
 \ 
-
-
-
 
 ```{r}
 model_matrix <- function(x,m) { 
 	nx <- length(x)
 	A<-matrix(NA,nx,m+1)
-	for( i in 0:m){
-		A[,(i+1)] <- Fx(i,x)  }
-	colnames(A )<-NULL
-	return(A)	}
-
-
+	for( i in 0:m){		A[,(i+1)] <- Fx(i,x)  }
+	colnames(A )<-NULL;	return(A)	}
 B<- model_matrix(bones$age,5)
-
-
 Alpha <- solve(t(B) %*% B , t(B) %*% as.matrix(bones[,4])) 
 ```
 
-
-
 ```{r}
 x_grid <- seq(min(bones$age), max(bones$age), .01)
-B_grid <- model_matrix(x_grid,5)
-y_grid <- B_grid %*% Alpha
- 
+B_grid <- model_matrix(x_grid,5); y_grid <- B_grid %*% Alpha
+```
+
+```{r, fig.height=4,fig.width=7}
 par(mar=c(4.1,4.1,2,1))
 plot(bones$age, bones[,4], ylim=c(min(bones[,4])-.02,max(bones[,4]) + .02) )
 lines(x_grid, y_grid, col="red", lwd=2)   
@@ -119,31 +190,25 @@ lines(x_grid, y_grid, col="red", lwd=2)
 \ 
 
 
-
+\begin{itemize} \item[] 
 We have some data, $x^{(i)} \in \mathbb{R}$ and $y_i \in \mathbb{R}$, and we wish to approximate $y$ by a function $f(x)$, when $f(x) \in \mathcal{F}$ and $f(x): \mathbb{R}^n \rightarrow \mathbb{R}$.
 
 \ 
 
 Let $\mathcal{F}$ be:
 
-\ 
 
 \begin{equation*} 
 \mathcal{F} = \{ f(x): f(x): \mathbb{R}^n \rightarrow \mathbb{R}, f(x) = 5^{th} \text{ harmonic} \} . 
 \end{equation*}
 
-\ 
 
 We use least squares to find the $f(x) \in \mathcal{F}$
-
-\ 
 
 \begin{align}
      \min\limits_{f(x) \in \mathcal{F} } \sum\limits_{i=1}^N \left| y_i - f\left(x^{(i)} \right) \right|
 \end{align} 
-
  
- \ 
  
  It is key to note that $\mathcal{F}$ is a linear function / vector space. It is true that for any $g(x) \in \mathcal{F}$ and $h(x) \in \mathcal{F}$, $c_1 g(x) + c_2 h(x) \in \mathcal{F}$, where $c_1,c_2 \in \mathbb{R}$
  
@@ -197,8 +262,9 @@ and (2) is equivalent to
 \begin{align}
     \min\limits_{\alpha \in \mathbb{R}^6 } ||{\bm y}-B{\bm \alpha}||^2. 
 \end{align}
+ \end{itemize} 
  
-
+\begin{itemize} \item[ ] 
 So given some data we are trying to fit through that data the best $5^{th}$ harmonic. We are not doing regression in the sense of fitting a line because we are fitting a $5^{th}$ harmonic. But we end up doing the same exact thing that we do for linear regression (minimize sum of squares, replace with model matrix).
 
 
@@ -212,7 +278,8 @@ The important part of linear regression is not that the functions are linear, it
 
 \ 
 
-Now for projection consider the ${\bm y}$, $B$ and ${\bm \alpha}$ from (3) above. We wish to choose ${\bm \alpha}$ so that $B{\bm \alpha}$ is as close as possible to ${\bm y}$. Or put another way, find the point in the $\text{Span}(B) = \text{Span}\left(b^{(0)} \ \ b^{(1)} \ \ \dots \ \ b^{(5)}\right)$ closest to ${\bm y}$. If $n=2$, we would have a visual like this:
+ Now for projection consider the ${\bm y}$, $B$ and ${\bm \alpha}$ from (3) above. We wish to choose ${\bm \alpha}$ so that $B{\bm \alpha}$ is as close as possible to ${\bm y}$. Or put another way, find the point in the $\text{Span}(B) = \text{Span}\left(b^{(0)} \ \ b^{(1)} \ \ \dots \ \ b^{(5)}\right)$ closest to ${\bm y}$. If $n=2$, we would have a visual like this:
+\end{itemize} 
 
 \ 
 
@@ -220,18 +287,23 @@ Now for projection consider the ${\bm y}$, $B$ and ${\bm \alpha}$ from (3) above
 
 \ 
 
+\begin{itemize} \item[ ] 
 For $n=6$, $b_{0}$ through $b_{5}$ are linearly combining to form a plane Again, we want to find the point closest to ${\bm y}$. It will be the point that is orthogonal and this point will be the $\text{Proj}_B(y)$.
-
+\end{itemize} 
 
 \ 
 
+\begin{itemize} \item[ ] 
 The projection of $x \in \mathbb{R}$ onto $\Omega$ is the closest point in $\Omega$ to $x$.
+\end{itemize} 
 
 \begin{align*}
     P_\Omega(x) = \min_{z \in \Omega} ||z-x||
 \end{align*}
  
+ \begin{itemize} \item[ ] 
 Now suppose $\Omega =  \text{Span}\left(b^{(0)} \ \ b^{(1)} \ \ \dots \ \ b^{(5)}\right)$, and \(\displaystyle P_\Omega(x) = \min_{z \in \Omega} ||z-y|| \), where 
+\end{itemize} 
 
 \begin{align*}
      z &= \alpha_0 b^{(0)} + \alpha_1 b^{(1)} + ... + \alpha_5 b^{(5)} = B{\bm \alpha} = 
@@ -242,24 +314,27 @@ Now suppose $\Omega =  \text{Span}\left(b^{(0)} \ \ b^{(1)} \ \ \dots \ \ b^{(5)
         \alpha_0 & \alpha_1 & \dots & \alpha_5
         \end{pmatrix}^T
 \end{align*}
+\begin{itemize} \item[ ] 
 and 
+\end{itemize}  
 \begin{align} \min_{z \in \Omega} ||z-y|| = \min_{z \in \Omega} ||\alpha_0 b^{(0)} + \alpha_1 b^{(1)} + ... + \alpha_5 b^{(5)}-y|| \end{align}
 
-
+\begin{itemize} \item[ ] 
 So we have $\min\limits_{\alpha \in \mathbb{R}} ||B \alpha - y||^2$. To tie projection and linear regression together, we can view linear regression as a projection onto the span of the columns of the model matrix. 
+\end{itemize} 
 
 \ 
  
-
+\begin{itemize} \item[ ] 
 Now tying both of them to quadratic optimization. When we have a linear subspace and project onto it, it leads to a minimization of a quadratic $\min\limits_{\alpha \in \mathbb{R}^6} ||B{\bm \alpha}-{\bm y}||^2$, (5) above. When $\mathcal{F}$ is a linear function space then the regression is a minimization of a quadratic $\min\limits_{\alpha \in \mathbb{R}^6 } ||{\bm y}-B{\bm \alpha}||^2$, (4) above.
+\end{itemize} 
 
 
 \  
 
+\begin{itemize} \item[ ] 
 Both (4) and (5) are solved with the normal equations. 
-
-\ 
-
+\end{itemize} 
 
 \begin{align*}
 L(\alpha) &= \sum_{i=1}^N \left(   y_i - \alpha_0 + \alpha_1x_1^{(i)} + \alpha_2x_2^{(i)} + ... \alpha_nx_n^{(i)}  \right)^2 \\
@@ -275,12 +350,84 @@ L(\alpha) &= \sum_{i=1}^N \left(   y_i - \alpha_0 + \alpha_1x_1^{(i)} + \alpha_2
 &= \left( B^T B \right)^{-1} B^T y
 \end{align*}
 
-
+\begin{itemize} \item[ ] 
 We have shown that determining $f(x)$ corresponds to a linear regression, projection of a vector onto a linear space, and a quadratic optimization.
+\end{itemize} 
+
+\ 
+
+\begin{itemize}
+\item[(c)] Consider $\mathcal{F}$, but now formed from all $b_i(x)$ with $i=0,1,\dots,1000$.  Show that the best fit is now not unique.  Construct a penalty term that penalizes $f(x)$ (or equivalently $\alpha$) for contributions from $b_j(x)$ with large $j$.  Show that your penalty term creates a unique best fit $f(x)$ for any penalty value $\rho > 0$.  (Recall, you can do this by showing that the penalty term corresponds to a positive definite matrix.  Go through the argument).  What happens to the fit as $\rho$ increases?   Show plots of the data and fit for different $\rho$.  
+\end{itemize}
+
+\ 
+
+\begin{itemize} \item[ ] 
+ We have an underdetermined system, more variables than equations. There cannot be more basic variables than there are equations, so there must be at least one free variable. Such a variable may be assigned infinitely many different values. Because our system is consistent (has at least one solution), each different value of a free variable will produce a different solution. 
+\end{itemize} 
+
+\ 
+
+\begin{itemize}    \item[] 
+
+We note, $\alpha = \left( B^TB+\rho \ \Omega \right)^{-1}$ is a unique minimum. If $\rho$ is 0, $B^TB$ will not be invertible because $B$ is a fat matrix and there are some values $B$ takes to 0.
+
+\ 
+
+If $\rho>0$ we get a unique solution and $B^TB+\rho \Omega$ can be inverted. Both are $B^TB$ and $\rho \ \Omega$ are positive semidefinite matrices.
+
+\ 
+
+\hfil \( \displaystyle v^T(B^TB)v \geq 0 \) and \( \displaystyle v^T(\rho \ \Omega)v \geq 0\) 
+
+\ 
+
+For any $\alpha$, $\alpha^TB^TB\alpha = ||B\alpha||^2 > 0$. We also know,
+
+\ 
+
+\hfil \(\displaystyle \alpha^T \Omega \alpha = \int_{x_{min}}^{x_{max}} \left( \left[ \sum_j \alpha_j b_j(z) \right]'' \right)^2 \text{d}z. \)
+
+\ 
+
+\ 
+
+The integral is non-negative since the integrand is square, so $\alpha^T \Omega \alpha \geq 0$. The only way $\alpha^T \Omega \alpha = 0$ is if 
+
+\ 
+
+\hfil \( \displaystyle \sum_j \alpha_j b_j(z) \)
+
+\ 
+
+has a second derivative that is zero for all $z$, that is the function is linear. 
+
+\ 
+
+If $\alpha$ is such that \( \displaystyle \sum_j \alpha_j b_j(z) \) is not linear, then $\alpha^T \Omega \alpha  > 0$, and we can conclude $\alpha^t \left(B^TB+\rho \Omega\right) \alpha >0$, which in turn gives $\left(B^TB+\rho \Omega \right)\alpha \neq 0$.
+
+\ 
 
 
+If $\alpha$ is such that \( \displaystyle \sum_j \alpha_j b_j(z) \) is linear, then $\alpha^T \Omega \alpha  = 0$. However, the $i$th coordinate of the vector $B\alpha$, is given by
+ 
 
-\newpage
+\hfil \( \displaystyle \sum_j \alpha_j b_j(x_i) \),
+ 
+
+where $x_i$ is the $i$th sample. If $B\alpha = 0$, then the function \( \displaystyle \sum_j \alpha_j b_j(z) \) is a linear function that is zero at all $x_i$. But this means the function is zero and hence $\alpha=0$. 
+
+\ 
+
+This allows us to conclude that if $\alpha^T\Omega\alpha = 0$ and $\alpha \neq 0$, then $B\alpha\neq0$ and therefore $\alpha^TB^TB\alpha> 0$. We can also conclude that in this case $\left(B^TB+\rho \Omega \right)\alpha \neq 0$.
+
+\ 
+
+Therefore, for either of the two cases when $\sum_j \alpha_j b_j(z)$ is linear or not linear, we have shown that for any $\alpha \neq 0$ we have $\left(B^TB+\rho \Omega \right)\alpha \neq 0$, so $B^TB+\rho \  \Omega$ is invertible.
+\end{itemize}
+
+
+\ 
 
 ```{r, echo=F}
 mat<-as.matrix(read.csv("fapprox.csv"))[,-1]
@@ -318,7 +465,7 @@ z<-seq(min(bones$age),max(bones$age),   length.out = 10000 )
 h<-z[2]-z[1]
 
 
-omega<-h*(t(Bpp) %*% Bpp )
+omega<-h*(t(Bpp) %*% Bpp )  #Penalty Term
 
 B<- model_matrix(bones$age,1000)
 n=1001
@@ -341,11 +488,24 @@ lines( datt[,1],datt[,4],col="green", lwd=2)
 
 \includegraphics{penal.png}
 
+\begin{itemize} \item[ ] 
 As $\rho$ increases the regression becomes more linear in order to reduce the penalty term, the result is that the fitting term increases, meaning that the fit becomes poorer.
-
+\end{itemize}
 
 \newpage
 
+\begin{itemize} \item[(2)] This problem repeats the neural net problem of hw $12$, but using Martens' conjugate gradient method. You will apply his Algorithm 1, although with some differences.  As we discussed in class, let $f(\eta)$ be the \textbf{negative} log-likelihood function (negative, so we can minimize rather than maximize).  Martens' uses $\theta$ for the net parameters, but to connect to our notation, I will use $\eta$.
+\end{itemize}
+
+\ 
+
+\begin{itemize} \item[(a)] 
+In Algorithm $1$, Martens defines $B = Hf(\eta) + \lambda I$.  Explain why Martens adds a $\lambda I$.  (This connects to our discussion of Hessian modification.)   Martens changes $\lambda$ at every iteration of the optimization as he discusses in Section $4.1$.   Here, let's take a simplified approach.  Let $\eta^{(i)}$ and $\eta^{(i+1)}$ be the $i$th and $i+1$th values of $\eta$ in the optimizatio iteration.  If the algorithm has made good progress in iteration $i+1$ relative to $\eta^{(i)}$, then lower $\lambda$.  If the algorithm has made poor progress, then raise $\lambda$.  It is up to you to define good/poor and to determine how much to lower/raise $\lambda$.   Explain why we should raise $\lambda$ if the progress is poor.
+\end{itemize}
+
+\ 
+
+\begin{itemize} \item[ ] 
  The neural net is a nonconvex optimization, we may go to a local minimum. We want the hessian of the negative log likelihood to be positive definite, or alternatively we want all the eigenvalues to be positive. However, for neural nets the hessian of negative log likelihood is not going to be positive definite because it is not a convex function. 
  
  \ 
@@ -382,11 +542,26 @@ As $\rho$ increases the regression becomes more linear in order to reduce the pe
  \end{align*}
  
 We should raise $\lambda$ if we are doing poorly, because raising the lambdas enough will get all of our eigenvalues positive. When the eigenvalues are all positive we are in a region of the function that is locally convex and we will go down.
+\end{itemize}
+
 
 \ 
 
+\begin{itemize} \item[(b)] 
+Martens' points out that conjugate gradient does not require actually computing $Hf(\eta)$, but rather being able to compute $Hf(\eta)d$ for any vector $d$.   He then notes
+\begin{equation*}
+Hf(\eta)d = \lim_{\epsilon \to 0} \frac{\nabla f(\eta + \epsilon d) - \nabla f(\eta)}{\epsilon}
+\end{equation*}
+Prove this relation.  (Hint:  Consider the first coordinate of this equality, which is given by
+\begin{equation*}
+[Hf(\eta)d]_1= \lim_{\epsilon \to 0} \frac{\frac{\partial f}{\partial \eta_1}(\eta + \epsilon d) -  \frac{\partial f}{\partial \eta_1}(eta)}{\epsilon},
+\end{equation*}
+where $[Hf(\eta)d]_1$ is the first coordinate of the vector $Hf(\eta)d$.  Write a first-order, multi-d Taylor series expansion for  $\frac{\partial f}{\partial \eta_1}(\eta + \epsilon d)$ about the base point $\eta$.  Plug the Taylor series in, and show that the limit converges to $[Hf(\eta)d]_1$.   Other coordinates will follow by the same argument.
+\end{itemize}
+
 \ 
 
+\begin{itemize} \item[] 
 First, let's write down $Hf(\eta)d$ 
 
  \begin{align}
@@ -449,7 +624,273 @@ First-order Taylor series expansion about the base point $\eta$:
 \end{align*}
 
 We see that for the $i$th coordinate is equal to the $i$th row in (8) above. Other coordinates will follow by the same argument.
+\end{itemize}
+
+\ 
+
+\begin{itemize} \item[(c)]
+In your code, use a finite $\epsilon$ to approximate $Hf(\eta)d$:
+\begin{equation}
+Hf(\eta)d \approx \frac{\nabla f(\eta + \epsilon d) - \nabla f(\eta)}{\epsilon}
+\end{equation}
+Your code from hw $12$ already computes $\nabla f$ (remember though, now we are using the negative log likelihood).  Reuse that code.  Choose an appropriate value of $\epsilon$ and explain your choice.  (Hint:  Consider the error you make in computing the partials of $f$, then choose an $\epsilon$ that balances this error with the Taylor series error, as we did in analyzing finite differences in class.)   
+\end{itemize}
+
+\ 
+
+```{r}
+Hfd<-function(x,y,eta,m,d,epi=10^-3 ){	(gradL(x,y,eta+d*epi,m)-gradL(x,y,eta,m))/(epi)}
+```
+
+\ 
+ 
+ \begin{itemize}     \item[] 
+
+ We consider the error made in computing the partials of $f$,
+ 
+
+ 
+ \begin{align*}
+     \text{error} &= \cfrac{ \ \cfrac{\partial}{\partial \eta}  f(\eta + h {\bm d}) - 
+         \cfrac{\partial}{\partial \eta}  f(\eta   ) \ }{ h} - \left[ Hf(\eta)d \right]\\
+    &= \cfrac{ \ \cfrac{\partial}{\partial \eta}  f(\eta + h {\bm d}) (1+\epsilon_1) - 
+         \cfrac{\partial}{\partial \eta}  f(\eta   ) (1+\epsilon_2) \ }{ h} - \left[ Hf(\eta)d \right] \\
+    &= \cfrac{ \ \cfrac{\partial}{\partial \eta} f(\eta + h {\bm d} ) \epsilon_1 - 
+        \cfrac{\partial}{\partial \eta} f(\eta) \epsilon_2 \ }{ h } + 
+        \cfrac{ \ \cfrac{\partial}{\partial \eta} f(\eta + h {\bm d} )  - 
+        \cfrac{\partial}{\partial \eta} f(\eta)   \ }{ h } - \left[ Hf(\eta)d \right] \\ 
+    & =  \cfrac{c \cdot 10^{-16}}{h}  + \cfrac{ \ \cancel{  \cfrac{\partial}{\partial \eta} f(\eta)} +
+         \cancel{  \nabla \left( \cfrac{\partial}{\partial \eta} \ f(\eta) \right) } \cdot h \cancel{{\bm d}}  +        (h{\bm d})^T Hf(\eta)  ( h {\bm d}) -     \cancel{    \cfrac{\partial}{\partial \eta} \ f(\eta)  }        \ }{h } - \cancel{ \left[ Hf(\eta)d \right]} \\
+    &=     \cfrac{c \cdot 10^{-16}}{h} + \cfrac{h}{h} + \cfrac{ \ h^{\cancel{2}} {\bm d}^T Hf(\eta) {\bm d} \ }{\cancel{h}} \\
+    \\
+    & \text{ take derivative in h, set to 0} \\
+    0 &= -  \cfrac{c \cdot 10^{-16}}{h^2} +Hf(\eta) {\bm d} \\
+    h &= \sqrt{ \cfrac{ \ c \cdot 10^{-16}  \ }{ Hf(\eta) {\bm d}} }= 10^{-8}.
+ \end{align*}
+ 
+ \ 
+ 
+ However, when it came to implementing the neural net I found $10^{-8}$, $10^{-7}$, $10^{-6}$ much to small. I ended up using $\epsilon$'s closer to $10^{-2}$ and $10^{-3}$.
+ 
+  \end{itemize}
+
+\ 
+
+  \begin{itemize} \item[(d)] 
+As a warm-up, write a function that applies conjugate gradient to solve an $Ax=b$ problem given $A$ and $b$.  See Sauer section $2.6.3$ for the conjugate gradient iteration. Construct a symmetric, positive definite matrix $A$ and test your function.  Show that your function finds the solution in $n$ steps for an $n \times n$ matrix.  \end{itemize}
 
 
+\ 
 
+```{r}
+CG<-function(A,b){
+	x<-rep(0 ,dim(A)[1])
+	d<- r<- b-(A%*%x)
+	iter=0
+	repeat{
+		iter=iter+1
+		Alpha<-as.numeric(  (t(r)%*%r)/(t(d)%*%A%*%d) )
+		xnext<-x+Alpha*d
+		rnext<-r-Alpha*A%*%d
+		if( all(as.numeric( round(rnext,7) ) == 0) == T ){break}
+		Beta<- as.numeric((t(rnext)%*%rnext)/(t(r)%*%r))
+		dnext<-rnext+Beta*d
+		d<-dnext;r<-rnext;x<-xnext 
+	}
+	return(list(x=xnext,iterations=iter)) }
+  
+AA<-matrix(c(2,-1,0,-1,2,-1,0,-1,2),3,3,byrow=T)
+bb<-matrix(c(2,2,6),3,1)
+solve(AA,bb)
+eigen(AA)$values;dim(AA)
+
+
+CG(AA,bb)
+```
+
+\ 
+
+  \begin{itemize} \item[] 
+It does well for a $3 \times 3$ matrix. We can try a somewhat larger one.
+  \end{itemize} 
+  
+  
+\ 
+
+
+```{r}
+dat<-mtcars[,c(1,3:6)]
+dat<-var(dat)
+eigen(dat)$values;dim(dat)
+bb<-rpois(dim(dat)[1],3)
+solve(dat,bb)
+
+CG(dat,bb) 
+```
+ 
+ \ 
+ 
+   \begin{itemize} \item[] 
+ For this matrix it takes $n+2$ iterations to get this one, but the stopping condition is somewhat large.
+   \end{itemize} 
+   
+   
+ \ 
+ 
+\begin{itemize}  \item[(e)] 
+Put together (a), (c) and (d) to apply Martens algorithm to train the neural net.  You will need to modify your code from (d), so that the conjugate gradient uses the Hessian free estimate from (c).  In the notation of (a), your conjugate gradient needs to solve the $Ax=b$ problem with $A = Hf(\eta) + \lambda I$ and $b = -\nabla f(\eta)$.  You can use Martens method of backtracking using the conjugate gradient iterates or just set $\eta^{(i+1} = \eta^{(i)} + p$ where $p$ is the solution of the "$Ax=b$" problem computed by conjugate gradient.    Train your net and visualize the resultant classifiers.
+  \end{itemize} 
+  
+  
+ \begin{itemize}  \item[] 
+ Neural net functions.
+   \end{itemize} 
+   
+ \ 
+ 
+ 
+```{r, eval=F}
+NN<-function(x,eta,m){
+	
+	X<-as.matrix(x)
+
+	Alpha<-matrix(eta[1:prod( c(dim(X)[2] + 1, m ) )], dim(X)[2] + 1 , m)
+	Z<-apply(Alpha, 2, function(w) 1/(1+exp(- w[1] -   X %*% w[-1]  )) ) 
+
+	Beta<-matrix( eta[(prod(dim(Alpha))+1):length(eta) ], dim(Z)[2]+1, 2)
+	 
+	TT<-apply(Beta, 2, function(w) 1/(1+exp(- w[1] - Z %*% w[-1]  )) ) 
+	Y<- apply(TT,2, function(x) exp(x))
+	Y<-Y/rowSums(Y)
+	return(Y)
+}
+
+logL<-function(x,y,eta,m){
+	Y<-NN(x,eta,m)
+	return(- sum( (1-y)*log(Y[,1]) + ( y)*log(Y[,2])  ) )	}
+
+gradL<-function(x,y,eta,m ){
+		
+	y<-as.matrix(y)
+	dimeta<-m*(dim(x)[2]+1)+2*(1+m)
+	gradf<-rep(NA,dimeta)
+
+	Y<-NN(x,eta,m)
+	ETA<-eta
+
+	logl<-logL(x,y,eta,m)
+	for( i in 1:dimeta){
+		ETA <-eta
+		ETA[i]<-eta[i]+(10^-6)
+			
+		gradf[i]<- ( logL(x,y,ETA,m) -	logl  ) / (10^-6)	}
+	return(gradf)
+}
+```
+
+\ 
+
+\begin{itemize}  \item[] 
+Train the neural net.
+\end{itemize}
+
+\ 
+ 
+
+```{r, eval=F}
+nn<-read.table("nn.txt",header=T)	
+set.seed(2221);theta<- runif(22,-.1,.1)
+lambda =  100
+
+#########		start		#########
+for( k in 1:500){
+  b<- (-gradL(nn[,-3],nn[,3],theta,4) )
+
+  x<-rep(0,length(b)) 
+  d<-r<- b    #Ax here is the zero vector, saves some computations
+  plist<-list()
+
+  for(i in 1:30){
+    hfd<-	(Hfd(nn[,-3],nn[,3],theta,4,d,(10^-2))  + lambda * d) 
+    Alpha<-as.numeric(  (t(r)%*%r)/(t(d)%*%	( hfd   )) )
+    xnext<-x+Alpha*d
+    rnext<-r-Alpha*( hfd  )
+    Beta<- as.numeric((t(rnext)%*%rnext)/(t(r)%*%r))
+    dnext<-rnext+Beta*d
+    d<-dnext;r<-rnext;x<-xnext
+  }
+
+  oldtheta=theta
+  theta=xnext+theta
+
+  if( logL(nn[,-3],nn[,3],theta,4) < logL(nn[,-3],nn[,3],oldtheta,4) ){
+	  lambda = lambda*9/10 } else { theta=oldtheta;lambda = 1110 }
+  if( lambda < 2){	lambda =  4 }
+}  
+```
+
+```{r, echo=F}
+nn<-read.table("nn.txt",header=T)	
+theta=read.csv("theta.csv")[,2]
+source("nnfunctions.R");source("multiplot.R")
+```
+
+\ 
+
+\begin{itemize}  \item[] 
+Most of my success came when we did some controlling of $\lambda$. I started it off large, and whittled it down at each iteration if the log likelihood was lower, and generally it was. However, if $\lambda$ went to low, it tended to blow up the log likelihood, so I kept $\lambda$ between 2 and 4 when I was making progress. But if the log likelihood does increase during an iteration, I throw away the new theta, use the old theta and make $\lambda$ 200. From there $\lambda$ gets whittled down again. The log likelihood is at 622.6902
+\end{itemize} 
+ 
+
+\ 
+
+
+```{r}
+theta
+logL(nn[,-3],nn[,3], theta,4)
+```
+
+```{r eval = T}
+require(ggplot2, quietly = T)
+test<-as.data.frame(( NN(nn[,-3],theta,4 )))
+test<-cbind(test,nn[,-3]);test$y3<- ifelse( test[,1]>.5 , 0,1)
+names(test)[3:4]<-c("x1","x2");test$Y<-nn$y;test$Yd<- (test$y3+test$Y)
+test[which(test[,7] == 1),7]<-3;test[which(test[,7] == 2), 7]<-1
+test[which(test[,7] == 3), 7]<-2;test$Yd<- as.factor(test$Yd)
+
+cols <- c("#e41a1c","#bebada","black");names(cols ) <- levels(test$Yd)
+colScale <- scale_colour_manual(name = "Yd",values = cols)
+
+qq<- ggplot(test, aes(x1, x2)) + geom_point(aes(colour = factor(Yd))) +
+           theme(legend.position="bottom")+ ggtitle("Test")     + colScale
+
+```
+```{r, fig.height=7.5,fig.width=7}
+qq
+```
+
+\ 
+
+\begin{itemize}  \item[] 
+The black dots are the ones the NN are assigning incorrectly; the red dots are correctly predicted class 0 and the lavender dots are correctly predicted class 1.
+\end{itemize} 
+
+
+\ 
+
+```{r}
+x1<-matrix(4*runif(20000 )-2, 10000,2);test<-as.data.frame((NN(x1,theta ,4)))
+test<-cbind(test,x1);test$y1<- ifelse( test[,1]>.5 , 0,1)
+test$y2<- ifelse( test[,1]>.7 , 0,1);test$y3<- ifelse( test[,1]>.3 , 0,1)
+names(test)[3:4]<-c("x1","x2")
+cols <- c("#e41a1c","#bebada");names(cols ) <- levels(test$Y1)
+colScale <- scale_colour_manual(name = "Y1",values = cols)
+
+p1 <- ggplot(test, aes(x1, x2)) + geom_point(aes(colour = factor(y1))) +
+ ylim(-2.5, 2.5) + xlim( -2.5,2.5 ) + ggtitle("p = 0.5") +
+ theme(legend.position="bottom") + colScale
+```
+```{r, fig.height=5.5,fig.width=6.7}
+p1
+```
 
